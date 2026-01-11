@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "392971587776",
+    "project_id": "prolearn-ai-micha",
+    "storage_bucket": "prolearn-ai-micha.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:392971587776:android:08235261a6854abdb9dd25",
+        "android_client_info": {
+          "package_name": "com.example.prolearn_ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAI5xj0gPjW20i0QmISwAKx84k5SVYhhu0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
