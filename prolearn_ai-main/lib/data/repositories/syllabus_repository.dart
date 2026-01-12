@@ -9,6 +9,13 @@ class SyllabusRepository {
     return docs.map((doc) => SyllabusModel.fromJson(doc)).toList();
   }
 
+  /// Get real-time stream of syllabi
+  Stream<List<SyllabusModel>> getSyllabiStream() {
+    return _firebaseService.getSyllabiStream().map((docs) {
+      return docs.map((doc) => SyllabusModel.fromJson(doc)).toList();
+    });
+  }
+
   Future<void> saveSyllabus(SyllabusModel syllabus) async {
     await _firebaseService.addDocument('syllabi', syllabus.toJson());
   }

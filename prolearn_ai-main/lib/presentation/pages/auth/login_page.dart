@@ -140,28 +140,56 @@ class _LoginPageState extends State<LoginPage> {
 
                         /// LOGIN BUTTON (FIXED)
                         CustomButton(
-  text: AppText.login,
-  onPressed: () async {
-    if (!_formKey.currentState!.validate()) return;
+                          text: AppText.login,
+                          onPressed: () async {
+                            // Validate form first
+                            if (!_formKey.currentState!.validate()) {
+                              return;
+                            }
 
-    try {
-      await Provider.of<AppAuthProvider>(context, listen: false).login(
-        _emailController.text.trim(),
-        _passwordController.text.trim(),
-      );
+                            // Get values and ensure they're not empty
+                            final email = _emailController.text.trim();
+                            final password = _passwordController.text.trim();
 
-      if (!mounted) return;
-      Navigator.pushReplacementNamed(context, '/dashboard');
-    } on FirebaseAuthException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(e.message ?? 'Login failed'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
-  },
-),
+                            if (email.isEmpty || password.isEmpty) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Please fill in all fields'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                              return;
+                            }
+
+                            try {
+                              await Provider.of<AppAuthProvider>(
+                                context,
+                                listen: false,
+                              ).login(email, password);
+
+                              if (!mounted) return;
+                              Navigator.pushReplacementNamed(context, '/dashboard');
+                            } on FirebaseAuthException catch (e) {
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(e.message ?? 'Login failed'),
+                                  backgroundColor: Colors.red,
+                                  duration: const Duration(seconds: 4),
+                                ),
+                              );
+                            } catch (e) {
+                              if (!mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('An error occurred: ${e.toString()}'),
+                                  backgroundColor: Colors.red,
+                                  duration: const Duration(seconds: 4),
+                                ),
+                              );
+                            }
+                          },
+                        ),
 
 
 

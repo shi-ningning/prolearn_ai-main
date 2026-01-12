@@ -32,6 +32,11 @@ class CustomTextField extends StatelessWidget {
         controller: controller,
         obscureText: obscureText,
         validator: validator,
+        // Use a unique key to avoid duplicate IDs in web
+        key: Key('${label.toLowerCase().replaceAll(' ', '_')}_${controller.hashCode}'),
+        autofillHints: obscureText ? [AutofillHints.password] : [AutofillHints.email],
+        keyboardType: obscureText ? TextInputType.visiblePassword : TextInputType.emailAddress,
+        textInputAction: obscureText ? TextInputAction.done : TextInputAction.next,
         style: const TextStyle(
           color: AppColors.onSurface,
           fontWeight: FontWeight.w500,

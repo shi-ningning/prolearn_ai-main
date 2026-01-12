@@ -13,10 +13,12 @@ class SyllabusModel {
 
   factory SyllabusModel.fromJson(Map<String, dynamic> json) {
     return SyllabusModel(
-      id: json['id'],
-      title: json['title'],
-      description: json['description'],
-      topics: List<String>.from(json['topics']),
+      id: json['id'] ?? '',
+      title: json['title'] ?? '',
+      description: json['description'] ?? '',
+      topics: json['topics'] != null 
+          ? List<String>.from(json['topics'])
+          : [],
     );
   }
 

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text.dart';
 import '../../../core/utils/validators.dart';
 import '../../../core/theme/text_styles.dart';
@@ -21,6 +21,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -73,8 +74,8 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 24),
 
                 CustomButton(
-                  text: AppText.register,
-                  onPressed: _register,
+                  text: _isLoading ? 'Creating Account...' : AppText.register,
+                  onPressed: _isLoading ? null : _register,
                 ),
               ],
             ),
@@ -85,24 +86,75 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> _register() async {
-    if (!_formKey.currentState!.validate()) return;
+    // Prevent multiple submissions
+    if (_isLoading) return;
+
+    // Validate form
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    // Get and validate inputs
+    final name = _nameController.text.trim();
+    final email = _emailController.text.trim().toLowerCase();
+    final password = _passwordController.text;
+
+    // Additional validation
+    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please fill in all fields'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Validate email format more strictly
+    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    if (!emailRegex.hasMatch(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid email address'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Password must be at least 6 characters'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
       await context.read<AppAuthProvider>().register(
-  _nameController.text.trim(),
-  _emailController.text.trim(),
-  _passwordController.text.trim(),
-);
-
-
+        name,
+        email,
+        password,
+      );
 
       if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
 
       showDialog(
         context: context,
         builder: (_) => AlertDialog(
           title: const Text('Success'),
-          content: const Text('Account created. Please log in.'),
+          content: const Text('Account created successfully! Please check your email for verification.'),
           actions: [
             TextButton(
               onPressed: () {
@@ -114,12 +166,28 @@ class _RegisterPageState extends State<RegisterPage> {
           ],
         ),
       );
-    } catch (e) {
+    } on FirebaseAuthException catch (e) {
       if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          content: Text(e.message ?? 'Registration failed'),
           backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('An error occurred: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
         ),
       );
     }
