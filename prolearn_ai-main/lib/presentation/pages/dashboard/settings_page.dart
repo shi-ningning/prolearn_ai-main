@@ -34,21 +34,18 @@ class _SettingsPageState extends State<SettingsPage> {
       appBar: AppBar(
         title: Text(
           AppText.settings,
-          style: TextStyle(
-            color: AppColors.onPrimary,
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
         ),
-        backgroundColor: AppColors.primary,
         elevation: 0,
-        shadowColor: AppColors.shadow,
-        iconTheme: IconThemeData(color: AppColors.onPrimary),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppColors.primary,
-                AppColors.secondary,
+                Theme.of(context).colorScheme.primary,
+                Theme.of(context).colorScheme.secondary,
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -62,7 +59,23 @@ class _SettingsPageState extends State<SettingsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Settings', style: TextStyles.headline),
+            Row(
+              children: [
+                Icon(
+                  Icons.settings,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 32,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Settings',
+                  style: TextStyles.headline.copyWith(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 16),
             Expanded(
               child: ListView(
@@ -111,21 +124,46 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Widget _buildSettingsItem(String title, IconData icon, VoidCallback onTap) {
     return AnimatedCard(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: const EdgeInsets.only(bottom: 12),
       onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+            width: 1,
+          ),
+        ),
         child: Row(
           children: [
-            CircleAvatar(
-              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-              child: Icon(icon, color: AppColors.primary),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: Theme.of(context).colorScheme.primary,
+                size: 24,
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(
-              child: Text(title, style: TextStyles.body),
+              child: Text(
+                title,
+                style: TextStyles.body.copyWith(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 16,
+                ),
+              ),
             ),
-            const Icon(Icons.arrow_forward_ios, size: 16, color: AppColors.onSurface),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+            ),
           ],
         ),
       ),
@@ -560,7 +598,7 @@ class _SettingsPageState extends State<SettingsPage> {
   // Theme Dialog
   void _showThemeDialog(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-    String selectedTheme = 'Light';
+    AppThemeMode currentMode = themeProvider.themeMode;
 
     showDialog(
       context: context,
@@ -570,28 +608,31 @@ class _SettingsPageState extends State<SettingsPage> {
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              RadioListTile<String>(
+              RadioListTile<AppThemeMode>(
                 title: const Text('Light'),
-                value: 'Light',
-                groupValue: selectedTheme,
+                subtitle: const Text('Always use light theme'),
+                value: AppThemeMode.light,
+                groupValue: currentMode,
                 onChanged: (value) {
-                  setState(() => selectedTheme = value!);
+                  setState(() => currentMode = value!);
                 },
               ),
-              RadioListTile<String>(
+              RadioListTile<AppThemeMode>(
                 title: const Text('Dark'),
-                value: 'Dark',
-                groupValue: selectedTheme,
+                subtitle: const Text('Always use dark theme'),
+                value: AppThemeMode.dark,
+                groupValue: currentMode,
                 onChanged: (value) {
-                  setState(() => selectedTheme = value!);
+                  setState(() => currentMode = value!);
                 },
               ),
-              RadioListTile<String>(
+              RadioListTile<AppThemeMode>(
                 title: const Text('System Default'),
-                value: 'System',
-                groupValue: selectedTheme,
+                subtitle: const Text('Follow system theme'),
+                value: AppThemeMode.system,
+                groupValue: currentMode,
                 onChanged: (value) {
-                  setState(() => selectedTheme = value!);
+                  setState(() => currentMode = value!);
                 },
               ),
             ],
@@ -603,12 +644,13 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             ElevatedButton(
               onPressed: () {
-                if (selectedTheme == 'Dark') {
-                  themeProvider.toggleTheme();
-                }
+                themeProvider.setThemeMode(currentMode);
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Theme changed to $selectedTheme')),
+                  SnackBar(
+                    content: Text('Theme changed to ${currentMode.name}'),
+                    duration: const Duration(seconds: 2),
+                  ),
                 );
               },
               child: const Text('Apply'),

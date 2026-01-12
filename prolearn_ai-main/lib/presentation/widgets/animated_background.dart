@@ -210,19 +210,27 @@ class AnimatedBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    
     Widget background = AnimatedGradientBackground(
-      colors: [
-        AppColors.background,
-        AppColors.surfaceVariant,
-        AppColors.background,
-      ],
+      colors: isDark
+          ? [
+              AppColors.darkBackground,
+              AppColors.darkSurface,
+              AppColors.darkBackground,
+            ]
+          : [
+              AppColors.background,
+              AppColors.surfaceVariant,
+              AppColors.background,
+            ],
       child: child,
     );
 
     if (showParticles) {
       background = ParticleBackground(
         particleCount: 30,
-        particleColor: AppColors.primary,
+        particleColor: isDark ? AppColors.darkPrimary : AppColors.primary,
         child: background,
       );
     }

@@ -127,21 +127,18 @@ class _DashboardPageState extends State<DashboardPage> {
       appBar: AppBar(
         title: Text(
           AppText.dashboard,
-          style: TextStyle(
-            color: AppColors.onPrimary,
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
         ),
-        backgroundColor: AppColors.primary,
         elevation: 0,
-        shadowColor: AppColors.shadow,
-        iconTheme: IconThemeData(color: AppColors.onPrimary),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppColors.primary,
-                AppColors.secondary,
+                Theme.of(context).colorScheme.primary,
+                Theme.of(context).colorScheme.secondary,
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -165,17 +162,49 @@ class _DashboardPageState extends State<DashboardPage> {
                     'Welcome to ProLearn AI',
                     style: TextStyles.headline.copyWith(
                       fontSize: isSmallScreen ? 24 : 32,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
                     ),
                   ),
                   SizedBox(height: isSmallScreen ? 16 : 24),
                   Card(
-                    child: Padding(
-                      padding: EdgeInsets.all(padding),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Quick Stats', style: TextStyles.titleLarge),
-                          const SizedBox(height: 12),
+                    elevation: 6,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Theme.of(context).colorScheme.surface,
+                            Theme.of(context).colorScheme.surface.withValues(alpha: 0.8),
+                          ],
+                        ),
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.all(padding),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.analytics,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Quick Stats',
+                                  style: TextStyles.titleLarge.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
                           Consumer<TaskProvider>(
                             builder: (context, taskProvider, child) {
                               final totalTasks = taskProvider.allTasks.length;
@@ -211,12 +240,27 @@ class _DashboardPageState extends State<DashboardPage> {
                               );
                             },
                           ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                   SizedBox(height: isSmallScreen ? 16 : 24),
-                  Text('Recent Activity', style: TextStyles.titleMedium),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.history,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Recent Activity',
+                        style: TextStyles.titleMedium.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 8),
                   Consumer<TaskProvider>(
                     builder: (context, taskProvider, child) {
