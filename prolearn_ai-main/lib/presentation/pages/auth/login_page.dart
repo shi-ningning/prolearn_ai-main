@@ -33,16 +33,22 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              AppColors.background,
-              AppColors.surfaceVariant,
-            ],
+            colors: isDark
+                ? [
+                    AppColors.darkBackground,
+                    AppColors.darkSurface,
+                  ]
+                : [
+                    AppColors.background,
+                    AppColors.surfaceVariant,
+                  ],
           ),
         ),
         child: SafeArea(
@@ -52,7 +58,10 @@ class _LoginPageState extends State<LoginPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back, color: AppColors.onBackground),
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
                   onPressed: () => Navigator.pop(context),
                 ),
                 const SizedBox(height: 20),

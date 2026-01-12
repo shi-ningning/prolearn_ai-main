@@ -50,13 +50,15 @@ Future<void> main() async {
   final topicProgressProvider = TopicProgressProvider();
   topicProgressProvider.initializeProgressStream();
 
+  final themeProvider = ThemeProvider();
+
   runApp(
     MultiProvider(
       providers: [
+        ChangeNotifierProvider.value(value: themeProvider),
         ChangeNotifierProvider(create: (_) => AppAuthProvider()),
         ChangeNotifierProvider(create: (_) => syllabusProvider),
         ChangeNotifierProvider(create: (_) => TaskProvider()),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => topicProgressProvider),
       ],
       child: const MyApp(),

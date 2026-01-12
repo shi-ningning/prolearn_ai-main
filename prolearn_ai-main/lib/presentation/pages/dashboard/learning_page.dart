@@ -141,11 +141,23 @@ class _LearningPageState extends State<LearningPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'All Subjects',
-                    style: TextStyles.headline.copyWith(
-                      fontSize: isSmallScreen ? 24 : 32,
-                    ),
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.school,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: isSmallScreen ? 28 : 36,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'All Subjects',
+                        style: TextStyles.headline.copyWith(
+                          fontSize: isSmallScreen ? 24 : 32,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(height: isSmallScreen ? 16 : 24),
                   Expanded(

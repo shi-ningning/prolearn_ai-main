@@ -418,7 +418,10 @@ class _TaskPageState extends State<TaskPage> {
                     TextField(
                       decoration: InputDecoration(
                         hintText: 'Search tasks...',
-                        prefixIcon: const Icon(Icons.search),
+                        prefixIcon: Icon(
+                          Icons.search,
+                          color: Theme.of(context).colorScheme.primary,
+                        ),
                         suffixIcon: taskProvider.searchQuery.isNotEmpty
                             ? IconButton(
                                 icon: const Icon(Icons.clear),
@@ -427,8 +430,26 @@ class _TaskPageState extends State<TaskPage> {
                                 },
                               )
                             : null,
+                        filled: true,
+                        fillColor: Theme.of(context).colorScheme.surface,
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          borderSide: BorderSide(
+                            color: Theme.of(context).colorScheme.primary,
+                            width: 2,
+                          ),
                         ),
                       ),
                       onChanged: (value) {
