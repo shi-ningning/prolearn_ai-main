@@ -141,21 +141,18 @@ class _ProgressPageState extends State<ProgressPage> {
       appBar: AppBar(
         title: Text(
           AppText.progress,
-          style: TextStyle(
-            color: AppColors.onPrimary,
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
         ),
-        backgroundColor: AppColors.primary,
         elevation: 0,
-        shadowColor: AppColors.shadow,
-        iconTheme: IconThemeData(color: AppColors.onPrimary),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppColors.primary,
-                AppColors.secondary,
+                Theme.of(context).colorScheme.primary,
+                Theme.of(context).colorScheme.secondary,
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -208,7 +205,23 @@ class _ProgressPageState extends State<ProgressPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Your Progress', style: TextStyles.headline),
+                  Row(
+              children: [
+                Icon(
+                  Icons.trending_up,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 32,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Your Progress',
+                  style: TextStyles.headline.copyWith(
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+              ],
+            ),
                   const SizedBox(height: 16),
                   Expanded(
                     child: Consumer2<TaskProvider, TopicProgressProvider>(
@@ -246,13 +259,20 @@ class _ProgressPageState extends State<ProgressPage> {
 
   Widget _buildProgressCard(String subject, int percentage, Color color, String message) {
     return AnimatedCard(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 16),
       onTap: () {
         // Navigate to learning page for this subject
         Navigator.pushNamed(context, '/learning');
       },
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
+      child: Container(
+        padding: const EdgeInsets.all(20.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: color.withValues(alpha: 0.3),
+            width: 1.5,
+          ),
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -262,33 +282,47 @@ class _ProgressPageState extends State<ProgressPage> {
                 Expanded(
                   child: Text(
                     subject,
-                    style: TextStyles.titleMedium,
+                    style: TextStyles.titleMedium.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  '$percentage%',
-                  style: TextStyles.body.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.bold,
+                const SizedBox(width: 12),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: color.withValues(alpha: 0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    '$percentage%',
+                    style: TextStyles.body.copyWith(
+                      color: color,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            LinearProgressIndicator(
-              value: percentage / 100,
-              backgroundColor: color.withValues(alpha: 0.2),
-              valueColor: AlwaysStoppedAnimation<Color>(color),
-              minHeight: 8,
-              borderRadius: BorderRadius.circular(4),
+            const SizedBox(height: 16),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: LinearProgressIndicator(
+                value: percentage / 100,
+                backgroundColor: color.withValues(alpha: 0.2),
+                valueColor: AlwaysStoppedAnimation<Color>(color),
+                minHeight: 10,
+              ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
               message,
               style: TextStyles.caption.copyWith(
-                color: AppColors.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                fontSize: 13,
               ),
             ),
           ],

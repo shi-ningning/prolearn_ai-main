@@ -373,21 +373,18 @@ class _TaskPageState extends State<TaskPage> {
       appBar: AppBar(
         title: Text(
           AppText.tasks,
-          style: TextStyle(
-            color: AppColors.onPrimary,
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
+            fontSize: 20,
           ),
         ),
-        backgroundColor: AppColors.primary,
         elevation: 0,
-        shadowColor: AppColors.shadow,
-        iconTheme: IconThemeData(color: AppColors.onPrimary),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppColors.primary,
-                AppColors.secondary,
+                Theme.of(context).colorScheme.primary,
+                Theme.of(context).colorScheme.secondary,
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
