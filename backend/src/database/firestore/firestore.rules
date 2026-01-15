@@ -1,0 +1,108 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function isEmailVerified() {
+      return request.auth.token.email_verified == true;
+    }
+    
+    function isAdmin() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      // Users can read and write their own profile
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && 
+                       request.resource.data.uid == userId &&
+                       request.resource.data.email == request.auth.token.email;
+      allow update: if isOwner(userId) &&
+                       request.resource.data.uid == userId &&
+                       request.resource.data.email == resource.data.email; // Can't change email
+      allow delete: if isOwner(userId);
+    }
+    
+    // Projects collection
+    match /projects/{projectId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['title', 'description', 'status', 'priority']) &&
+                       request.resource.data.progress >= 0 &&
+                       request.resource.data.progress <= 100;
+      
+      allow update: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid &&
+                       request.resource.data.userId == request.auth.uid && // Can't transfer ownership
+                       request.resource.data.progress >= 0 &&
+                       request.resource.data.progress <= 100;
+      
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+    
+    // Tasks collection
+    match /tasks/{taskId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['title', 'isCompleted']);
+      
+      allow update: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid &&
+                       request.resource.data.userId == request.auth.uid; // Can't transfer ownership
+      
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+    
+    // Syllabi collection (read-only for users, write via Cloud Functions)
+    match /syllabi/{syllabusId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only Cloud Functions can write
+    }
+    
+    // Topic progress collection
+    match /topicProgress/{progressId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      
+      allow create: if isAuthenticated() && 
+                       request.resource.data.userId == request.auth.uid &&
+                       request.resource.data.keys().hasAll(['syllabusId', 'topicId', 'completed']);
+      
+      allow update: if isAuthenticated() && 
+                       resource.data.userId == request.auth.uid &&
+                       request.resource.data.userId == request.auth.uid;
+      
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+    
+    // Stats collection
+    match /stats/{userId} {
+      allow read: if isOwner(userId);
+      allow write: if false; // Only Cloud Functions can write stats
+    }
+    
+    // Analytics collection (admin only)
+    match /analytics/{analyticsId} {
+      allow read: if isAdmin();
+      allow write: if false; // Only Cloud Functions can write
+    }
+    
+    // Default deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

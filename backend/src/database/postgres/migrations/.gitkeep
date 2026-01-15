@@ -1,0 +1,36 @@
+# Database Migrations
+
+This directory contains database migration scripts for PostgreSQL.
+
+## Migration Naming Convention
+
+Format: `YYYYMMDD_HHMMSS_description.sql`
+
+Example: `20260115_120000_add_user_preferences.sql`
+
+## Running Migrations
+
+```bash
+# Using psql
+psql -U username -d database_name -f migration_file.sql
+
+# Or using a migration tool like node-pg-migrate
+npm run migrate up
+```
+
+## Creating New Migrations
+
+1. Create a new SQL file with the naming convention above
+2. Add both UP and DOWN migrations
+3. Test in development environment first
+4. Document changes in schema.sql
+
+## Example Migration
+
+```sql
+-- UP Migration
+ALTER TABLE users ADD COLUMN phone VARCHAR(20);
+
+-- DOWN Migration (rollback)
+-- ALTER TABLE users DROP COLUMN phone;
+```

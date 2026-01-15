@@ -6,14 +6,16 @@ class SyllabusRepository {
 
   Future<List<SyllabusModel>> getSyllabi() async {
     final docs = await _firebaseService.getDocuments('syllabi');
-    return docs.map((doc) => SyllabusModel.fromJson(doc)).toList();
-  }
-
-  /// Get real-time stream of syllabi
-  Stream<List<SyllabusModel>> getSyllabiStream() {
-    return _firebaseService.getSyllabiStream().map((docs) {
-      return docs.map((doc) => SyllabusModel.fromJson(doc)).toList();
-    });
+    return docs.map((doc) {
+      final data = doc;
+      // Ensure id is included
+      if (!data.containsKey('id') || data['id'] == null || data['id'] == '') {
+        // If no id in data, try to get from document reference
+        // For now, generate a temporary id or use title as fallback
+        data['id'] = data['title']?.toString().toLowerCase().replaceAll(' ', '-') ?? 'unknown';
+      }
+      return SyllabusModel.fromJson(data);
+    }).toList();
   }
 
   Future<void> saveSyllabus(SyllabusModel syllabus) async {

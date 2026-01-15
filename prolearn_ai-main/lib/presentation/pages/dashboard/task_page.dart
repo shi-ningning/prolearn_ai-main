@@ -21,7 +21,9 @@ class _TaskPageState extends State<TaskPage> {
   @override
   void initState() {
     super.initState();
-    _loadTasks();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadTasks();
+    });
   }
 
   Future<void> _loadTasks() async {
@@ -41,30 +43,30 @@ class _TaskPageState extends State<TaskPage> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Add New Task'),
+          title: Text(AppText.of(context).addNewTask),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Task Title',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: AppText.of(context).taskTitle,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: AppText.of(context).description,
+                    border: const OutlineInputBorder(),
                   ),
                   maxLines: 3,
                 ),
                 const SizedBox(height: 16),
                 ListTile(
-                  title: const Text('Due Date'),
+                  title: Text(AppText.of(context).dueDate),
                   subtitle: Text(
                     '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
                   ),
@@ -89,13 +91,17 @@ class _TaskPageState extends State<TaskPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(AppText.of(context).cancel),
             ),
             ElevatedButton(
               onPressed: () async {
                 if (titleController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter a task title')),
+                    SnackBar(
+                      content: Text(
+                        AppText.of(context, listen: false).pleaseEnterTaskTitle,
+                      ),
+                    ),
                   );
                   return;
                 }
@@ -118,8 +124,9 @@ class _TaskPageState extends State<TaskPage> {
                   if (context.mounted) {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Task added successfully'),
+                      SnackBar(
+                        content:
+                            Text(AppText.of(context, listen: false).taskAdded),
                         backgroundColor: Colors.green,
                       ),
                     );
@@ -128,14 +135,16 @@ class _TaskPageState extends State<TaskPage> {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Error adding task: $e'),
+                        content: Text(
+                          '${AppText.of(context, listen: false).errorPrefix}: $e',
+                        ),
                         backgroundColor: Colors.red,
                       ),
                     );
                   }
                 }
               },
-              child: const Text('Add Task'),
+              child: Text(AppText.of(context).addTask),
             ),
           ],
         ),
@@ -153,30 +162,30 @@ class _TaskPageState extends State<TaskPage> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Edit Task'),
+          title: Text(AppText.of(context).editTask),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 TextField(
                   controller: titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Task Title',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: AppText.of(context).taskTitle,
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: AppText.of(context).description,
+                    border: const OutlineInputBorder(),
                   ),
                   maxLines: 3,
                 ),
                 const SizedBox(height: 16),
                 ListTile(
-                  title: const Text('Due Date'),
+                  title: Text(AppText.of(context).dueDate),
                   subtitle: Text(
                     '${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
                   ),
@@ -198,9 +207,9 @@ class _TaskPageState extends State<TaskPage> {
                 const SizedBox(height: 16),
                 DropdownButtonFormField<TaskPriority>(
                   value: selectedPriority,
-                  decoration: const InputDecoration(
-                    labelText: 'Priority',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: AppText.of(context).priority,
+                    border: const OutlineInputBorder(),
                   ),
                   items: TaskPriority.values.map((priority) {
                     return DropdownMenuItem(
@@ -228,13 +237,17 @@ class _TaskPageState extends State<TaskPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: Text(AppText.of(context).cancel),
             ),
             ElevatedButton(
               onPressed: () async {
                 if (titleController.text.trim().isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Please enter a task title')),
+                    SnackBar(
+                      content: Text(
+                        AppText.of(context, listen: false).pleaseEnterTaskTitle,
+                      ),
+                    ),
                   );
                   return;
                 }
@@ -251,8 +264,9 @@ class _TaskPageState extends State<TaskPage> {
                   if (context.mounted) {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Task updated successfully'),
+                      SnackBar(
+                        content:
+                            Text(AppText.of(context, listen: false).taskUpdated),
                         backgroundColor: Colors.green,
                       ),
                     );
@@ -261,14 +275,16 @@ class _TaskPageState extends State<TaskPage> {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text('Error updating task: $e'),
+                        content: Text(
+                          '${AppText.of(context, listen: false).errorPrefix}: $e',
+                        ),
                         backgroundColor: Colors.red,
                       ),
                     );
                   }
                 }
               },
-              child: const Text('Save'),
+              child: Text(AppText.of(context).save),
             ),
           ],
         ),
@@ -277,45 +293,57 @@ class _TaskPageState extends State<TaskPage> {
   }
 
   Future<void> _deleteTask(TaskModel task) async {
+    final confirmed = await _confirmDeleteTask(task);
+    if (!confirmed) return;
+    await _performDeleteTask(task);
+  }
+
+  Future<bool> _confirmDeleteTask(TaskModel task) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Task'),
-        content: Text('Are you sure you want to delete "${task.title}"?'),
+        title: Text(AppText.of(context).deleteTask),
+        content: Text(
+          AppText.of(context).deleteTaskConfirm(task.title),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(AppText.of(context).cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete'),
+          child: Text(AppText.of(context).deleteTask),
           ),
         ],
       ),
     );
 
-    if (confirmed == true) {
-      try {
-        await context.read<TaskProvider>().deleteTask(task.id);
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Task deleted successfully'),
-              backgroundColor: Colors.green,
+    return confirmed == true;
+  }
+
+  Future<void> _performDeleteTask(TaskModel task) async {
+    try {
+      await context.read<TaskProvider>().deleteTask(task.id);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppText.of(context, listen: false).taskDeleted),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${AppText.of(context, listen: false).errorPrefix}: $e',
             ),
-          );
-        }
-      } catch (e) {
-        if (context.mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error deleting task: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+            backgroundColor: Colors.red,
+          ),
+        );
       }
     }
   }
@@ -325,13 +353,13 @@ class _TaskPageState extends State<TaskPage> {
     final difference = date.difference(now).inDays;
 
     if (difference < 0) {
-      return 'Overdue';
+      return AppText.of(context).overdue;
     } else if (difference == 0) {
-      return 'Due today';
+      return AppText.of(context).dueToday;
     } else if (difference == 1) {
-      return 'Due tomorrow';
+      return AppText.of(context).dueTomorrow;
     } else {
-      return 'Due in $difference days';
+      return AppText.of(context).dueInDays(difference);
     }
   }
 
@@ -349,11 +377,11 @@ class _TaskPageState extends State<TaskPage> {
   String _getPriorityLabel(TaskPriority priority) {
     switch (priority) {
       case TaskPriority.high:
-        return 'High';
+        return AppText.of(context).high;
       case TaskPriority.medium:
-        return 'Medium';
+        return AppText.of(context).medium;
       case TaskPriority.low:
-        return 'Low';
+        return AppText.of(context).low;
     }
   }
 
@@ -372,20 +400,45 @@ class _TaskPageState extends State<TaskPage> {
       backgroundColor: Colors.transparent,
       appBar: AppBar(
         title: Text(
-          AppText.tasks,
-          style: const TextStyle(
+          AppText.of(context).tasks,
+          style: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: 20,
+            fontSize: 22,
+            color: Theme.of(context).colorScheme.onPrimary,
+            letterSpacing: 0.5,
+            shadows: Theme.of(context).brightness == Brightness.dark ? [
+              Shadow(
+                color: Colors.black.withValues(alpha: 0.3),
+                offset: const Offset(0, 2),
+                blurRadius: 4,
+              ),
+            ] : [],
           ),
         ),
-        elevation: 0,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onPrimary,
+          size: 24,
+        ),
+        elevation: 8,
+        shadowColor: Theme.of(context).brightness == Brightness.dark
+          ? Colors.black.withValues(alpha: 0.5)
+          : Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
         flexibleSpace: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [
-                Theme.of(context).colorScheme.primary,
-                Theme.of(context).colorScheme.secondary,
-              ],
+              colors: Theme.of(context).brightness == Brightness.dark
+                ? [
+                    Theme.of(context).colorScheme.primary,
+                    Theme.of(context).colorScheme.primary.withValues(
+                      red: (Theme.of(context).colorScheme.primary.r * 0.8).clamp(0, 1),
+                      green: (Theme.of(context).colorScheme.primary.g * 0.8).clamp(0, 1),
+                      blue: (Theme.of(context).colorScheme.primary.b * 0.8).clamp(0, 1),
+                    ),
+                  ]
+                : [
+                    Theme.of(context).colorScheme.primary,
+                    Theme.of(context).colorScheme.secondary,
+                  ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -395,7 +448,7 @@ class _TaskPageState extends State<TaskPage> {
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: _showAddTaskDialog,
-            tooltip: 'Add Task',
+            tooltip: AppText.of(context).addTask,
           ),
         ],
       ),
@@ -417,7 +470,7 @@ class _TaskPageState extends State<TaskPage> {
                     // Search Bar
                     TextField(
                       decoration: InputDecoration(
-                        hintText: 'Search tasks...',
+                        hintText: AppText.of(context).searchTasks,
                         prefixIcon: Icon(
                           Icons.search,
                           color: Theme.of(context).colorScheme.primary,
@@ -464,7 +517,7 @@ class _TaskPageState extends State<TaskPage> {
                           child: DropdownButtonFormField<TaskFilter>(
                             value: taskProvider.currentFilter,
                             decoration: InputDecoration(
-                              labelText: 'Filter',
+                              labelText: AppText.of(context).filter,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -473,22 +526,22 @@ class _TaskPageState extends State<TaskPage> {
                                 vertical: 8,
                               ),
                             ),
-                            items: const [
+                            items: [
                               DropdownMenuItem(
                                 value: TaskFilter.all,
-                                child: Text('All Tasks'),
+                                child: Text(AppText.of(context).allTasks),
                               ),
                               DropdownMenuItem(
                                 value: TaskFilter.pending,
-                                child: Text('Pending'),
+                                child: Text(AppText.of(context).pending),
                               ),
                               DropdownMenuItem(
                                 value: TaskFilter.completed,
-                                child: Text('Completed'),
+                                child: Text(AppText.of(context).completed),
                               ),
                               DropdownMenuItem(
                                 value: TaskFilter.overdue,
-                                child: Text('Overdue'),
+                                child: Text(AppText.of(context).overdueFilter),
                               ),
                             ],
                             onChanged: (value) {
@@ -503,7 +556,7 @@ class _TaskPageState extends State<TaskPage> {
                           child: DropdownButtonFormField<TaskSort>(
                             value: taskProvider.currentSort,
                             decoration: InputDecoration(
-                              labelText: 'Sort',
+                              labelText: AppText.of(context).sort,
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(12),
                               ),
@@ -512,22 +565,22 @@ class _TaskPageState extends State<TaskPage> {
                                 vertical: 8,
                               ),
                             ),
-                            items: const [
+                            items: [
                               DropdownMenuItem(
                                 value: TaskSort.dueDate,
-                                child: Text('Due Date'),
+                                child: Text(AppText.of(context).sortDueDate),
                               ),
                               DropdownMenuItem(
                                 value: TaskSort.priority,
-                                child: Text('Priority'),
+                                child: Text(AppText.of(context).sortPriority),
                               ),
                               DropdownMenuItem(
                                 value: TaskSort.createdAt,
-                                child: Text('Created'),
+                                child: Text(AppText.of(context).sortCreated),
                               ),
                               DropdownMenuItem(
                                 value: TaskSort.title,
-                                child: Text('Title'),
+                                child: Text(AppText.of(context).sortTitle),
                               ),
                             ],
                             onChanged: (value) {
@@ -564,24 +617,33 @@ class _TaskPageState extends State<TaskPage> {
             Icon(
               Icons.task_alt,
               size: 80,
-              color: AppColors.onSurface.withValues(alpha: 0.5),
+              color: Theme.of(context)
+                  .colorScheme
+                  .onSurface
+                  .withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
               taskProvider.searchQuery.isNotEmpty
-                  ? 'No tasks found'
-                  : 'No tasks yet',
-              style: TextStyles.headline.copyWith(
-                color: AppColors.onSurface.withValues(alpha: 0.7),
+                  ? AppText.of(context).noTasksFound
+                  : AppText.of(context).noTasksYet,
+              style: TextStyles.headline(context).copyWith(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 8),
             Text(
               taskProvider.searchQuery.isNotEmpty
-                  ? 'Try adjusting your search or filters'
-                  : 'Tap the + button to add your first task',
-              style: TextStyles.body.copyWith(
-                color: AppColors.onSurface.withValues(alpha: 0.5),
+                  ? AppText.of(context).tryAdjustSearch
+                  : AppText.of(context).tapPlusToAdd,
+              style: TextStyles.body(context).copyWith(
+                color: Theme.of(context)
+                    .colorScheme
+                    .onSurface
+                    .withValues(alpha: 0.5),
               ),
             ),
           ],
@@ -598,106 +660,147 @@ class _TaskPageState extends State<TaskPage> {
                 final task = tasks[index];
                 final isOverdue = task.dueDate.isBefore(DateTime.now()) && !task.isCompleted;
                 
-                return AnimatedCard(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  backgroundColor: isOverdue ? Colors.red.withValues(alpha: 0.1) : null,
-                  onTap: () {
-                    // Show task details or edit
-                    _showEditTaskDialog(task);
+                return Dismissible(
+                  key: ValueKey(task.id),
+                  direction: DismissDirection.endToStart,
+                  confirmDismiss: (_) async {
+                    final confirmed = await _confirmDeleteTask(task);
+                    if (confirmed) {
+                      await _performDeleteTask(task);
+                    }
+                    return confirmed;
                   },
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: task.isCompleted
-                          ? AppColors.tertiary.withValues(alpha: 0.2)
-                          : AppColors.primary.withValues(alpha: 0.2),
-                      child: Icon(
-                        task.isCompleted ? Icons.check_circle : Icons.assignment,
-                        color: task.isCompleted ? AppColors.tertiary : AppColors.primary,
+                  background: Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    alignment: Alignment.centerRight,
+                    decoration: BoxDecoration(
+                      color: Colors.red.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: const Icon(Icons.delete, color: Colors.red),
+                  ),
+                  child: AnimatedCard(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    backgroundColor: isOverdue ? Colors.red.withValues(alpha: 0.1) : null,
+                    onTap: () {
+                      // Show task details or edit
+                      _showEditTaskDialog(task);
+                    },
+                    onLongPress: () async {
+                      await taskProvider.toggleTaskCompletion(task);
+                    },
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: task.isCompleted
+                            ? AppColors.tertiary.withValues(alpha: 0.2)
+                            : AppColors.primary.withValues(alpha: 0.2),
+                        child: Icon(
+                          task.isCompleted ? Icons.check_circle : Icons.assignment,
+                          color: task.isCompleted ? AppColors.tertiary : AppColors.primary,
+                        ),
                       ),
-                    ),
-                    title: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            task.title,
-                            style: TextStyles.body.copyWith(
-                              decoration: task.isCompleted ? TextDecoration.lineThrough : null,
-                              color: task.isCompleted
-                                  ? AppColors.onSurface.withValues(alpha: 0.6)
-                                  : null,
+                      title: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              task.title,
+                            style: TextStyles.body(context).copyWith(
+                                decoration: task.isCompleted ? TextDecoration.lineThrough : null,
+                                color: task.isCompleted
+                                  ? Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.6)
+                                    : null,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        _getPriorityIcon(task.priority),
-                      ],
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (task.description.isNotEmpty) ...[
-                          Text(
-                            task.description,
-                            style: TextStyles.caption,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
+                          const SizedBox(width: 8),
+                          _getPriorityIcon(task.priority),
                         ],
-                        Text(
-                          _formatDate(task.dueDate),
-                          style: TextStyles.caption.copyWith(
-                            color: isOverdue ? Colors.red : AppColors.onSurface.withValues(alpha: 0.7),
-                            fontWeight: isOverdue ? FontWeight.bold : FontWeight.normal,
-                          ),
-                        ),
-                      ],
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            task.isCompleted ? Icons.check_circle : Icons.radio_button_unchecked,
-                            color: task.isCompleted ? AppColors.tertiary : AppColors.onSurface,
-                          ),
-                          onPressed: () async {
-                            await taskProvider.toggleTaskCompletion(task);
-                          },
-                          tooltip: task.isCompleted ? 'Mark as incomplete' : 'Mark as complete',
-                        ),
-                        PopupMenuButton(
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'edit',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.edit, size: 20),
-                                  SizedBox(width: 8),
-                                  Text('Edit'),
-                                ],
-                              ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (task.description.isNotEmpty) ...[
+                            Text(
+                              task.description,
+                            style: TextStyles.caption(context),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.delete, size: 20, color: Colors.red),
-                                  SizedBox(width: 8),
-                                  Text('Delete', style: TextStyle(color: Colors.red)),
-                                ],
-                              ),
-                            ),
+                            const SizedBox(height: 4),
                           ],
-                          onSelected: (value) {
-                            if (value == 'edit') {
-                              _showEditTaskDialog(task);
-                            } else if (value == 'delete') {
-                              _deleteTask(task);
-                            }
-                          },
-                        ),
-                      ],
+                          Text(
+                            _formatDate(task.dueDate),
+                          style: TextStyles.caption(context).copyWith(
+                            color: isOverdue
+                                  ? Colors.red
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .onSurface
+                                      .withValues(alpha: 0.7),
+                              fontWeight: isOverdue ? FontWeight.bold : FontWeight.normal,
+                            ),
+                          ),
+                        ],
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              task.isCompleted
+                                  ? Icons.check_circle
+                                  : Icons.radio_button_unchecked,
+                            color: task.isCompleted
+                                  ? AppColors.tertiary
+                                  : Theme.of(context).colorScheme.onSurface,
+                            ),
+                            onPressed: () async {
+                              await taskProvider.toggleTaskCompletion(task);
+                            },
+                          tooltip: task.isCompleted
+                                ? AppText.of(context).markIncomplete
+                                : AppText.of(context).markComplete,
+                          ),
+                          PopupMenuButton(
+                            itemBuilder: (context) => [
+                              PopupMenuItem(
+                                value: 'edit',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.edit, size: 20),
+                                    SizedBox(width: 8),
+                                    Text(AppText.of(context).editTask),
+                                  ],
+                                ),
+                              ),
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.delete, size: 20, color: Colors.red),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      AppText.of(context).deleteTask,
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                            onSelected: (value) {
+                              if (value == 'edit') {
+                                _showEditTaskDialog(task);
+                              } else if (value == 'delete') {
+                                _deleteTask(task);
+                              }
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 );

@@ -1,0 +1,288 @@
+prolearn_ai-main/
+│
+├── frontend/                           ← Flutter Mobile & Web Application
+│   ├── android/                        ← Android platform files
+│   ├── ios/                            ← iOS platform files
+│   ├── web/                            ← Web platform files
+│   ├── linux/                          ← Linux platform files
+│   ├── macos/                          ← macOS platform files
+│   ├── windows/                        ← Windows platform files
+│   │
+│   ├── lib/                            ← Main application code
+│   │   ├── core/                       ← Core utilities
+│   │   │   ├── constants/              ← App constants (colors, assets, text)
+│   │   │   ├── theme/                  ← Theme configuration
+│   │   │   └── utils/                  ← Helper functions & validators
+│   │   │
+│   │   ├── data/                       ← Data layer
+│   │   │   ├── models/                 ← Data models (User, Project, Task, etc.)
+│   │   │   ├── repositories/           ← Repository implementations
+│   │   │   └── services/               ← External services (Firebase, AI, etc.)
+│   │   │
+│   │   ├── presentation/               ← UI layer
+│   │   │   ├── auth/                   ← Authentication screens
+│   │   │   ├── pages/                  ← App screens/pages
+│   │   │   │   ├── auth/               ← Login, Register, Email Verification
+│   │   │   │   ├── dashboard/          ← Main app screens
+│   │   │   │   └── onboarding/         ← Onboarding flow
+│   │   │   ├── widgets/                ← Reusable UI components
+│   │   │   └── state/                  ← State management (Providers)
+│   │   │
+│   │   ├── routes/                     ← App routing configuration
+│   │   └── main.dart                   ← App entry point
+│   │
+│   ├── test/                           ← Unit & widget tests
+│   ├── pubspec.yaml                    ← Flutter dependencies
+│   ├── analysis_options.yaml           ← Dart linter rules
+│   ├── firebase.json                   ← Firebase hosting config
+│   ├── README.md                       ← Frontend documentation
+│   └── TODO.md                         ← Development todos
+│
+├── backend/                            ← Backend Services
+│   │
+│   ├── src/                           ← All Backend Source Code
+│   │   │
+│   │   ├── controllers/               ← REST API Request Handlers
+│   │   │   ├── auth.controller.ts     ← Authentication endpoints
+│   │   │   ├── user.controller.ts     ← User management
+│   │   │   ├── project.controller.ts  ← Project CRUD
+│   │   │   ├── task.controller.ts     ← Task management
+│   │   │   ├── analytics.controller.ts ← Analytics & reporting
+│   │   │   └── admin.controller.ts    ← Admin operations
+│   │   │
+│   │   ├── middleware/                ← REST API Middleware
+│   │   │   ├── auth.ts                ← Authentication middleware
+│   │   │   ├── errorHandler.ts        ← Error handling
+│   │   │   ├── notFoundHandler.ts     ← 404 handler
+│   │   │   └── validateRequest.ts     ← Input validation
+│   │   │
+│   │   ├── routes/                    ← REST API Routes
+│   │   │   ├── auth.routes.ts
+│   │   │   ├── user.routes.ts
+│   │   │   ├── project.routes.ts
+│   │   │   ├── task.routes.ts
+│   │   │   ├── analytics.routes.ts
+│   │   │   ├── admin.routes.ts
+│   │   │   └── index.ts               ← Main router
+│   │   │
+│   │   ├── validators/                ← Request Validation Schemas
+│   │   │   └── auth.validator.ts
+│   │   │
+│   │   ├── index.ts                   ← REST API Entry Point
+│   │   │
+│   │   ├── database/                  ← Database Schemas & Configuration
+│   │   │   │
+│   │   │   ├── firestore/             ← Firestore (NoSQL)
+│   │   │   │   ├── seed/              ← Seed data scripts
+│   │   │   │   │   └── seed-data.ts
+│   │   │   │   │
+│   │   │   │   ├── schema.md          ← Schema documentation
+│   │   │   │   ├── firestore.rules    ← Security rules
+│   │   │   │   └── firestore.indexes.json ← Composite indexes
+│   │   │   │
+│   │   │   ├── postgres/              ← PostgreSQL (future use)
+│   │   │   │   ├── migrations/        ← Database migrations
+│   │   │   │   │   └── .gitkeep
+│   │   │   │   │
+│   │   │   │   ├── seeds/             ← Seed data
+│   │   │   │   │   └── seed-users.sql
+│   │   │   │   │
+│   │   │   │   └── schema.sql         ← SQL schema
+│   │   │   │
+│   │   │   └── README.md              ← Database documentation
+│   │   │
+│   │   └── functions/                 ← Firebase Cloud Functions
+│   │       ├── src/
+│   │       │   ├── auth/              ← Authentication triggers
+│   │       │   │   ├── onUserCreate.ts    ← New user creation handler
+│   │       │   │   └── onUserDelete.ts    ← User deletion handler
+│   │       │   │
+│   │       │   ├── firestore/         ← Firestore triggers
+│   │       │   │   ├── onProjectUpdate.ts ← Project update handler
+│   │       │   │   └── onTaskComplete.ts  ← Task completion handler
+│   │       │   │
+│   │       │   ├── http/              ← HTTP callable functions
+│   │       │   │   ├── sendVerificationReminder.ts
+│   │       │   │   └── generateReport.ts
+│   │       │   │
+│   │       │   ├── scheduled/         ← Scheduled functions (cron)
+│   │       │   │   ├── dailyProgressReport.ts
+│   │       │   │   ├── cleanupExpiredSessions.ts
+│   │       │   │   └── weeklyAnalytics.ts
+│   │       │   │
+│   │       │   └── index.ts           ← Functions entry point
+│   │       │
+│   │       ├── package.json           ← Functions dependencies
+│   │       ├── tsconfig.json          ← TypeScript configuration
+│   │       ├── .gitignore
+│   │       └── README.md              ← Functions documentation
+│   │
+│   ├── dist/                          ← Compiled JavaScript (generated by tsc)
+│   ├── package.json                   ← Backend dependencies and scripts
+│   ├── tsconfig.json                  ← TypeScript configuration for API
+│   ├── firebase.json                  ← Firebase configuration
+│   ├── .firebaserc                    ← Firebase project config
+│   ├── .gitignore                     ← Git ignore rules
+│   ├── .prettierrc                    ← Code formatting config
+│   ├── env.example                    ← Environment variables template
+│   └── README.md                      ← Backend documentation
+│
+├── .gitattributes                     ← Git attributes
+├── README.md                          ← Main project documentation
+├── PROJECT_STRUCTURE.md               ← Detailed architecture documentation
+├── QUICK_START.md                     ← Quick start guide
+└── FOLDER_STRUCTURE.txt               ← This file (folder structure)
+
+
+═══════════════════════════════════════════════════════════════════════════
+
+KEY FEATURES BY FOLDER:
+
+FRONTEND (frontend/)
+  ✅ Flutter cross-platform app (Mobile, Web, Desktop)
+  ✅ Clean architecture with separation of concerns
+  ✅ State management with Provider
+  ✅ Firebase integration
+  ✅ Material Design 3 UI
+  ✅ Multi-language support
+  ✅ Dark/Light theme
+
+BACKEND API (backend/src/ - root files)
+  ✅ Express.js REST API
+  ✅ TypeScript for type safety
+  ✅ Firebase Admin SDK integration
+  ✅ JWT authentication
+  ✅ Input validation with Joi
+  ✅ Error handling middleware
+  ✅ CORS and security headers
+  ✅ 6 Controllers: Auth, User, Project, Task, Analytics, Admin
+  ✅ RESTful API endpoints
+
+CLOUD FUNCTIONS (backend/src/functions/)
+  ✅ Firebase Cloud Functions
+  ✅ Authentication triggers
+  ✅ Database triggers
+  ✅ HTTP endpoints
+  ✅ Scheduled tasks (cron jobs)
+  ✅ Email notifications
+
+DATABASE (backend/src/database/)
+  ✅ Firestore NoSQL database
+  ✅ Security rules
+  ✅ Composite indexes
+  ✅ Seed data scripts
+  ✅ PostgreSQL schema (planned)
+  ✅ Migration scripts (planned)
+
+═══════════════════════════════════════════════════════════════════════════
+
+TECH STACK:
+
+Frontend:
+  - Flutter (Dart)
+  - Provider (State Management)
+  - Firebase SDK
+  - Material Design 3
+
+Backend:
+  - Node.js + Express.js
+  - TypeScript
+  - Firebase Admin SDK
+  - Firebase Cloud Functions
+  - Firestore (NoSQL)
+  - PostgreSQL (Planned)
+  - Redis (Planned)
+
+Development Tools:
+  - Firebase CLI
+  - Flutter SDK
+  - Git
+  - VS Code / Android Studio
+
+═══════════════════════════════════════════════════════════════════════════
+
+GETTING STARTED:
+
+1. Install Prerequisites:
+   - Flutter SDK (3.x+)
+   - Node.js (18+)
+   - Firebase CLI
+   - Git
+
+2. Frontend Setup:
+   cd frontend
+   flutter pub get
+   flutter run
+
+3. Backend API Setup:
+   cd backend
+   npm install
+   cp env.example .env
+   # Edit .env with your credentials
+   npm run dev
+   # API available at http://localhost:3000
+
+4. Backend Functions Setup:
+   cd backend/src/functions
+   npm install
+   npm run build
+   cd ../..
+   npm run emulators
+   # Emulator UI at http://localhost:4000
+
+5. Deploy:
+   - Frontend: flutter build web
+   - API: npm run build (then deploy to your hosting)
+   - Functions: npm run deploy:functions
+   - Database Rules: npm run deploy:rules
+
+═══════════════════════════════════════════════════════════════════════════
+
+API ENDPOINTS:
+
+Base URL: http://localhost:3000/api
+
+Authentication:
+  POST   /api/auth/login              - User login
+  POST   /api/auth/register           - User registration
+  POST   /api/auth/refresh            - Refresh access token
+  POST   /api/auth/logout             - User logout
+  POST   /api/auth/verify-email       - Send email verification
+
+Users:
+  GET    /api/users/:id               - Get user profile
+  PUT    /api/users/:id               - Update user profile
+  GET    /api/users/:id/stats         - Get user statistics
+  DELETE /api/users/:id               - Delete user account
+
+Projects:
+  GET    /api/projects                - List user projects
+  POST   /api/projects                - Create new project
+  GET    /api/projects/:id            - Get project details
+  PUT    /api/projects/:id            - Update project
+  DELETE /api/projects/:id            - Delete project
+
+Tasks:
+  GET    /api/tasks                   - List user tasks
+  POST   /api/tasks                   - Create new task
+  GET    /api/tasks/:id               - Get task details
+  PUT    /api/tasks/:id               - Update task
+  DELETE /api/tasks/:id               - Delete task
+  PATCH  /api/tasks/:id/complete      - Mark task complete
+
+Analytics:
+  GET    /api/analytics/overview      - Dashboard statistics
+  GET    /api/analytics/progress      - Progress tracking
+  GET    /api/analytics/export        - Export user data
+
+Admin (requires admin role):
+  GET    /api/admin/users             - List all users
+  GET    /api/admin/stats             - System statistics
+  POST   /api/admin/announcements     - Create announcement
+  DELETE /api/admin/users/:id         - Delete user (admin)
+
+═══════════════════════════════════════════════════════════════════════════
+
+See QUICK_START.md for detailed setup instructions.
+
+═══════════════════════════════════════════════════════════════════════════
