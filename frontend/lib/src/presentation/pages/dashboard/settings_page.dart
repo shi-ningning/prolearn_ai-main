@@ -87,119 +87,146 @@ class _SettingsPageState extends State<SettingsPage> {
   }
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final user = FirebaseAuth.instance.currentUser;
+    
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: IconThemeData(
-          color: Theme.of(context).colorScheme.onSurface,
-          size: 24,
-        ),
-        title: RichText(
-          text: TextSpan(
-            children: [
-              TextSpan(
-                text: 'ProLearn ',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              TextSpan(
-                text: 'AI',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.secondary,
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+      backgroundColor: colorScheme.surface,
       drawer: const Sidebar(),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+      body: Column(
+        children: [
+          // Dark Header Section
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).padding.top + 16,
+              bottom: 80,
+              left: 20,
+              right: 20,
+            ),
+            decoration: BoxDecoration(
+              color: colorScheme.primary,
+            ),
+            child: Column(
               children: [
-                Icon(
-                  Icons.settings,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 32,
+                // Back Button
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: IconButton(
+                    icon: Icon(Icons.arrow_back, color: colorScheme.onPrimary),
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(height: 8),
+                // User Name
                 Text(
-                  AppText.of(context).settingsTitle,
-                  style: TextStyles.headline(context).copyWith(
+                  user?.displayName ?? 'User',
+                  style: TextStyle(
+                    color: colorScheme.onPrimary,
+                    fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                // User Role/Subtitle
+                Text(
+                  'Student',
+                  style: TextStyle(
+                    color: colorScheme.onPrimary.withOpacity(0.8),
+                    fontSize: 14,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            Expanded(
-              child: ListView(
+          ),
+          // White Content Area with Rounded Top Corners
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(20),
+                  topRight: Radius.circular(20),
+                ),
+              ),
+              child: Stack(
+                clipBehavior: Clip.none,
                 children: [
-                  _buildSettingsSection(AppText.of(context).sectionAccount, [
-                    _buildSettingsItem(
-                      AppText.of(context).profile,
-                      Icons.person,
-                      () => _showProfileDialog(context),
+                  // Content with spacing for profile image
+                  Column(
+                    children: [
+                      const SizedBox(height: 60),
+                      // Settings List
+                      Expanded(
+                        child: ListView(
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          children: [
+                        _buildSettingsItem(
+                          AppText.of(context).profile,
+                          Icons.person,
+                          colorScheme.primary.withOpacity(0.1),
+                          () => _showProfileDialog(context),
+                        ),
+                        _buildNotificationsDropdown(context),
+                        _buildSettingsItem(
+                          AppText.of(context).privacy,
+                          Icons.lock,
+                          colorScheme.secondary.withOpacity(0.1),
+                          () => _showPrivacyDialog(context),
+                        ),
+                        _buildSettingsItem(
+                          AppText.of(context).theme,
+                          Icons.palette,
+                          colorScheme.tertiary.withOpacity(0.1),
+                          () => _showThemeDialog(context),
+                        ),
+                        _buildSettingsItem(
+                          AppText.of(context).helpSupport,
+                          Icons.help,
+                          colorScheme.surfaceContainerHighest.withOpacity(0.3),
+                          () => _showHelpDialog(context),
+                        ),
+                      ],
                     ),
-                    _buildNotificationsDropdown(context),
-                    _buildSettingsItem(
-                      AppText.of(context).privacy,
-                      Icons.lock,
-                      () => _showPrivacyDialog(context),
+                  ),
+                    ],
+                  ),
+                  // Profile Image Overlapping - Positioned on top
+                  Positioned(
+                    top: -50,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: colorScheme.primary,
+                            width: 4,
+                          ),
+                          color: colorScheme.primary.withOpacity(0.1),
+                        ),
+                        child: Center(
+                          child: Text(
+                            user?.displayName?.substring(0, 1).toUpperCase() ?? 'U',
+                            style: TextStyle(
+                              fontSize: 40,
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
-                  ]),
-                  const SizedBox(height: 24),
-                  _buildSettingsSection(AppText.of(context).sectionLearning, [
-                    _buildSettingsItem(
-                      AppText.of(context).studyGoals,
-                      Icons.track_changes,
-                      () => _showStudyGoalsDialog(context),
-                    ),
-                    _buildSettingsItem(
-                      AppText.of(context).reminders,
-                      Icons.alarm,
-                      () => _showRemindersDialog(context),
-                    ),
-                    _buildSettingsItem(
-                      AppText.of(context).aiPreferences,
-                      Icons.smart_toy,
-                      () => _showAIPreferencesDialog(context),
-                    ),
-                  ]),
-                  const SizedBox(height: 24),
-                  _buildSettingsSection(AppText.of(context).sectionApp, [
-                    _buildSettingsItem(
-                      AppText.of(context).theme,
-                      Icons.palette,
-                      () => _showThemeDialog(context),
-                    ),
-                    _buildSettingsItem(
-                      AppText.of(context).language,
-                      Icons.language,
-                      () => _showLanguageDialog(context),
-                    ),
-                    _buildSettingsItem(
-                      AppText.of(context).helpSupport,
-                      Icons.help,
-                      () => _showHelpDialog(context),
-                    ),
-                  ]),
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -224,32 +251,46 @@ class _SettingsPageState extends State<SettingsPage> {
     );
   }
 
-  Widget _buildSettingsItem(String title, IconData icon, VoidCallback onTap) {
+  Widget _buildSettingsItem(String title, IconData icon, Color iconBackgroundColor, VoidCallback onTap) {
+    final colorScheme = Theme.of(context).colorScheme;
+    
     return InkWell(
       onTap: onTap,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 12),
         child: Row(
           children: [
-            Icon(
-              icon,
-              color: Theme.of(context).colorScheme.primary,
-              size: 24,
+            // Colored Icon Background
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: iconBackgroundColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(
+                icon,
+                color: colorScheme.primary,
+                size: 24,
+              ),
             ),
             const SizedBox(width: 16),
+            // Title
             Expanded(
               child: Text(
                 title,
-                style: TextStyles.body(context).copyWith(
+                style: TextStyle(
+                  color: colorScheme.onSurface,
                   fontWeight: FontWeight.w500,
                   fontSize: 16,
                 ),
               ),
             ),
+            // Chevron
             Icon(
-              Icons.arrow_forward_ios,
-              size: 16,
-              color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+              Icons.chevron_right,
+              color: colorScheme.onSurface.withOpacity(0.6),
+              size: 20,
             ),
           ],
         ),
@@ -269,28 +310,40 @@ class _SettingsPageState extends State<SettingsPage> {
             });
           },
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 16),
+            padding: const EdgeInsets.symmetric(vertical: 12),
             child: Row(
               children: [
-                Icon(
-                  Icons.notifications,
-                  color: colorScheme.primary,
-                  size: 24,
+                // Colored Icon Background
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: colorScheme.secondary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.notifications,
+                    color: colorScheme.primary,
+                    size: 24,
+                  ),
                 ),
                 const SizedBox(width: 16),
+                // Title
                 Expanded(
                   child: Text(
                     AppText.of(context).notifications,
-                    style: TextStyles.body(context).copyWith(
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
                       fontWeight: FontWeight.w500,
                       fontSize: 16,
                     ),
                   ),
                 ),
+                // Dropdown Arrow
                 Icon(
                   _notificationsExpanded ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
                   size: 20,
-                  color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  color: colorScheme.onSurface.withOpacity(0.6),
                 ),
               ],
             ),
@@ -298,7 +351,7 @@ class _SettingsPageState extends State<SettingsPage> {
         ),
         if (_notificationsExpanded) ...[
           Padding(
-            padding: const EdgeInsets.only(left: 40, right: 4, bottom: 8),
+            padding: const EdgeInsets.only(left: 64, right: 4, bottom: 8, top: 4),
             child: Column(
               children: [
                 SwitchListTile(
