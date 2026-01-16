@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../constants/app_text.dart';
-import '../../../theme/text_styles.dart';
 import '../../widgets/sidebar.dart';
 import '../../widgets/profile_dialog.dart';
 import '../../state/theme_provider.dart';
@@ -228,26 +227,6 @@ class _SettingsPageState extends State<SettingsPage> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSettingsSection(String title, List<Widget> items) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-          child: Text(
-            title,
-            style: TextStyles.titleLarge(context).copyWith(
-              fontWeight: FontWeight.w600,
-              fontSize: 18,
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        ...items,
-      ],
     );
   }
 
