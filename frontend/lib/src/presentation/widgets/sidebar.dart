@@ -5,6 +5,9 @@ import '../../routes/app_routes.dart';
 import '../../data/models/syllabus_model.dart';
 import '../state/syllabus_provider.dart';
 import '../state/app_auth_provider.dart';
+import '../state/google_classroom_provider.dart';
+import '../../data/services/google_classroom_service.dart';
+import '../pages/dashboard/classroom_detail_page.dart';
 
 class Sidebar extends StatelessWidget {
   const Sidebar({super.key});
@@ -130,9 +133,10 @@ class Sidebar extends StatelessWidget {
   }) {
     final colorScheme = Theme.of(context).colorScheme;
     
-    return Consumer<SyllabusProvider>(
-      builder: (context, syllabusProvider, child) {
+    return Consumer2<SyllabusProvider, GoogleClassroomProvider>(
+      builder: (context, syllabusProvider, classroomProvider, child) {
         final syllabi = syllabusProvider.syllabi;
+        final classrooms = classroomProvider.courses;
         
         return Container(
           margin: EdgeInsets.symmetric(
@@ -185,6 +189,40 @@ class Sidebar extends StatelessWidget {
                 onTap: () => Navigator.pushNamed(context, AppRoutes.learning),
                 contentPadding: EdgeInsets.zero,
               ),
+              // Google Classroom courses
+              ...classrooms.map((classroom) {
+                return ListTile(
+                  leading: Icon(
+                    Icons.school,
+                    color: colorScheme.primary,
+                    size: 20,
+                  ),
+                  title: Text(
+                    classroom.name,
+                    style: TextStyle(
+                      color: colorScheme.onSurface,
+                      fontSize: 14,
+                    ),
+                  ),
+                  subtitle: Text(
+                    classroom.section.isNotEmpty ? classroom.section : classroom.teacherName,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ClassroomDetailPage(course: classroom),
+                      ),
+                    );
+                  },
+                  contentPadding: EdgeInsets.zero,
+                );
+              }).toList(),
               // Individual syllabi
               ...syllabi.map((syllabus) {
                 return ListTile(

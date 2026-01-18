@@ -41,13 +41,13 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDSl4wyozMM_N98wkUjMXVM1Bwu34dpy88',
-    appId: '1:392971587776:web:c8bc712fd377f288b9dd25',
-    messagingSenderId: '392971587776',
-    projectId: 'prolearn-ai-micha',
-    authDomain: 'prolearn-ai-micha.firebaseapp.com',
-    storageBucket: 'prolearn-ai-micha.firebasestorage.app',
-    measurementId: 'G-N882STYXT0',
+    apiKey: 'AIzaSyCS17_Wfk0v-en96L5SbHtT4iM9v5TWWAE',
+    appId: '1:874731895290:web:56770ed6813237af514c43',
+    messagingSenderId: '874731895290',
+    projectId: 'prolean-ai',
+    authDomain: 'prolean-ai.firebaseapp.com',
+    storageBucket: 'prolean-ai.firebasestorage.app',
+    measurementId: 'G-QE8S1HCK5N',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
@@ -77,12 +77,12 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDSl4wyozMM_N98wkUjMXVM1Bwu34dpy88',
-    appId: '1:392971587776:web:477774c4ffc8f649b9dd25',
-    messagingSenderId: '392971587776',
-    projectId: 'prolearn-ai-micha',
-    authDomain: 'prolearn-ai-micha.firebaseapp.com',
-    storageBucket: 'prolearn-ai-micha.firebasestorage.app',
-    measurementId: 'G-PFKTLMJ3DE',
+    apiKey: 'AIzaSyCS17_Wfk0v-en96L5SbHtT4iM9v5TWWAE',
+    appId: '1:874731895290:web:56770ed6813237af514c43',
+    messagingSenderId: '874731895290',
+    projectId: 'prolean-ai',
+    authDomain: 'prolean-ai.firebaseapp.com',
+    storageBucket: 'prolean-ai.firebasestorage.app',
+    measurementId: 'G-QE8S1HCK5N',
   );
 }

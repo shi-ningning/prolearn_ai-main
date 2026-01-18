@@ -27,3 +27,9 @@ export const registerSchema = Joi.object({
   section: Joi.string().optional(),
   course: Joi.string().optional()
 });
+
+export const googleClassroomSchema = Joi.object({
+  idToken: Joi.string().required().messages({
+    'any.required': 'ID token is required'
+  })
+});

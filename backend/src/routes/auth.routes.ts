@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import * as authController from '../controllers/auth.controller';
 import { validateRequest } from '../middleware/validateRequest';
-import { loginSchema, registerSchema } from '../validators/auth.validator';
+import { loginSchema, registerSchema, googleClassroomSchema } from '../validators/auth.validator';
 
 const router = Router();
 
@@ -39,5 +39,12 @@ router.post('/logout', authController.logout);
  * @access  Private
  */
 router.post('/verify-email', authController.sendEmailVerification);
+
+/**
+ * @route   POST /api/auth/google-classroom
+ * @desc    Sign in with Google Classroom
+ * @access  Public
+ */
+router.post('/google-classroom', validateRequest(googleClassroomSchema), authController.signInWithGoogleClassroom);
 
 export default router;

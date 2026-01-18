@@ -9,6 +9,8 @@ import '../../widgets/animated_card.dart';
 import '../../../data/models/syllabus_model.dart';
 import '../../state/syllabus_provider.dart';
 import '../../state/topic_progress_provider.dart';
+import '../../state/google_classroom_provider.dart';
+import 'classroom_detail_page.dart';
 
 class LearningPage extends StatefulWidget {
   const LearningPage({super.key});
@@ -124,17 +126,18 @@ class _LearningPageState extends State<LearningPage> {
   }
 
   Widget _buildAllSubjectsView() {
-    return Consumer<SyllabusProvider>(
-      builder: (context, syllabusProvider, child) {
+    return Consumer2<SyllabusProvider, GoogleClassroomProvider>(
+      builder: (context, syllabusProvider, classroomProvider, child) {
         final syllabi = syllabusProvider.syllabi;
+        final classroomCourses = classroomProvider.courses;
 
-        if (syllabusProvider.isLoading) {
+        if (syllabusProvider.isLoading || classroomProvider.isLoading) {
           return const Center(
             child: CircularProgressIndicator(),
           );
         }
 
-        if (syllabi.isEmpty) {
+        if (syllabi.isEmpty && classroomCourses.isEmpty) {
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(24.0),
@@ -161,7 +164,7 @@ class _LearningPageState extends State<LearningPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    AppText.of(context).coursesLoading,
+                    'Connect to Google Classroom to import your classes',
                     style: TextStyles.body(context).copyWith(
                       color: Theme.of(context)
                           .colorScheme
@@ -172,14 +175,26 @@ class _LearningPageState extends State<LearningPage> {
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
-                    onPressed: () {
-                      syllabusProvider.loadSyllabi();
+                    onPressed: () async {
+                      await classroomProvider.signIn();
+                      if (classroomProvider.error != null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(classroomProvider.error!),
+                            backgroundColor: Colors.red,
+                          ),
+                        );
+                      }
                     },
-                    icon: const Icon(Icons.refresh),
-                    label: Text(AppText.of(context).refresh),
+                    icon: const Icon(Icons.login),
+                    label: const Text('Connect Google Classroom'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: AppColors.onPrimary,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 16,
+                      ),
                     ),
                   ),
                 ],
@@ -191,9 +206,9 @@ class _LearningPageState extends State<LearningPage> {
         return LayoutBuilder(
           builder: (context, constraints) {
             final isSmallScreen = constraints.maxWidth < 600;
-            final crossAxisCount = isSmallScreen ? 1 : 2;
             final padding = isSmallScreen ? 16.0 : 24.0;
             final spacing = isSmallScreen ? 12.0 : 16.0;
+            final totalCourses = syllabi.length + classroomCourses.length;
 
             return Padding(
               padding: EdgeInsets.all(padding),
@@ -216,21 +231,46 @@ class _LearningPageState extends State<LearningPage> {
                           letterSpacing: 0.5,
                         ),
                       ),
+                      const Spacer(),
+                      if (!classroomProvider.isSignedIn)
+                        TextButton.icon(
+                          onPressed: () async {
+                            await classroomProvider.signIn();
+                            if (classroomProvider.error != null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(classroomProvider.error!),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
+                          icon: const Icon(Icons.login, size: 18),
+                          label: const Text('Connect Classroom'),
+                          style: TextButton.styleFrom(
+                            foregroundColor: AppColors.primary,
+                          ),
+                        ),
                     ],
                   ),
                   SizedBox(height: isSmallScreen ? 16 : 24),
                   Expanded(
-                    child: GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        crossAxisSpacing: spacing,
-                        mainAxisSpacing: spacing,
-                        childAspectRatio: isSmallScreen ? 2.5 : 1.2,
-                      ),
-                      itemCount: syllabi.length,
+                    child: ListView.builder(
+                      itemCount: totalCourses,
+                      padding: EdgeInsets.only(bottom: isSmallScreen ? 80 : 24),
                       itemBuilder: (context, index) {
-                        final syllabus = syllabi[index];
-                        return _buildSubjectCard(syllabus, isSmallScreen);
+                        if (index < classroomCourses.length) {
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: isSmallScreen ? 12.0 : 16.0),
+                            child: _buildGoogleClassroomCard(classroomCourses[index], isSmallScreen),
+                          );
+                        } else {
+                          final syllabusIndex = index - classroomCourses.length;
+                          return Padding(
+                            padding: EdgeInsets.only(bottom: isSmallScreen ? 12.0 : 16.0),
+                            child: _buildSubjectCard(syllabi[syllabusIndex], isSmallScreen),
+                          );
+                        }
                       },
                     ),
                   ),
@@ -244,43 +284,294 @@ class _LearningPageState extends State<LearningPage> {
   }
 
   Widget _buildSubjectCard(SyllabusModel syllabus, [bool isSmallScreen = false]) {
+    final subjectColors = [
+      const Color(0xFF1976D2),
+      const Color(0xFF388E3C),
+      const Color(0xFFD32F2F),
+      const Color(0xFFF57C00),
+      const Color(0xFF7B1FA2),
+      const Color(0xFF0097A7),
+    ];
+    final colorIndex = syllabus.title.hashCode.abs() % subjectColors.length;
+    final subjectColor = subjectColors[colorIndex];
+
     return AnimatedCard(
       onTap: () {
         setState(() {
           _selectedSyllabus = syllabus;
         });
       },
-      padding: EdgeInsets.all(isSmallScreen ? 12.0 : 16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: isSmallScreen ? 16 : 20,
-            backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-            child: Text(
-              syllabus.title.isNotEmpty ? syllabus.title[0].toUpperCase() : 'S',
-              style: TextStyle(
-                color: AppColors.primary,
-                fontWeight: FontWeight.bold,
-                fontSize: isSmallScreen ? 14 : 16,
+      padding: EdgeInsets.zero,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          height: isSmallScreen ? 180 : 200,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                subjectColor,
+                subjectColor.withValues(alpha: 0.85),
+              ],
+            ),
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                right: -20,
+                bottom: -20,
+                child: Opacity(
+                  opacity: 0.15,
+                  child: Icon(
+                    Icons.menu_book_rounded,
+                    size: isSmallScreen ? 140 : 160,
+                    color: Colors.white,
+                  ),
+                ),
               ),
+              Positioned(
+                right: 8,
+                top: 8,
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.more_vert,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {},
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(isSmallScreen ? 16.0 : 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 8),
+                        Text(
+                          syllabus.title,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isSmallScreen ? 22 : 24,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.15,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          AppText.of(context).topicsCount(syllabus.topics.length),
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.9),
+                            fontSize: isSmallScreen ? 13 : 14,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundColor: Colors.white.withValues(alpha: 0.3),
+                            child: Text(
+                              FirebaseAuth.instance.currentUser?.displayName?.substring(0, 1).toUpperCase() ?? 'T',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              FirebaseAuth.instance.currentUser?.displayName ?? 'Teacher',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.95),
+                                fontSize: isSmallScreen ? 13 : 14,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGoogleClassroomCard(dynamic course, [bool isSmallScreen = false]) {
+    final subjectColors = [
+      const Color(0xFF1976D2),
+      const Color(0xFF388E3C),
+      const Color(0xFFD32F2F),
+      const Color(0xFFF57C00),
+      const Color(0xFF7B1FA2),
+      const Color(0xFF0097A7),
+    ];
+    final colorIndex = course.name.hashCode.abs() % subjectColors.length;
+    final subjectColor = subjectColors[colorIndex];
+
+    return AnimatedCard(
+      onTap: () {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation, secondaryAnimation) =>
+                ClassroomDetailPage(course: course),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              const begin = Offset(1.0, 0.0);
+              const end = Offset.zero;
+              const curve = Curves.easeInOut;
+              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+              var offsetAnimation = animation.drive(tween);
+              return SlideTransition(position: offsetAnimation, child: child);
+            },
+          ),
+        );
+      },
+      padding: EdgeInsets.zero,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          height: isSmallScreen ? 180 : 200,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                subjectColor,
+                subjectColor.withValues(alpha: 0.85),
+              ],
             ),
           ),
-          const SizedBox(height: 12),
-          Text(
-            syllabus.title,
-            style: TextStyles.titleMedium(context).copyWith(
-              fontSize: isSmallScreen ? 16 : 18,
-            ),
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
+          child: Stack(
+            children: [
+              Positioned(
+                right: -20,
+                bottom: -20,
+                child: Opacity(
+                  opacity: 0.15,
+                  child: Icon(
+                    Icons.class_outlined,
+                    size: isSmallScreen ? 140 : 160,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              Positioned(
+                right: 8,
+                top: 8,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.school,
+                        color: Colors.white,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Classroom',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(isSmallScreen ? 16.0 : 20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 8),
+                        Text(
+                          course.name,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isSmallScreen ? 22 : 24,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0.15,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        if (course.section.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            course.section,
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.9),
+                              fontSize: isSmallScreen ? 13 : 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundColor: Colors.white.withValues(alpha: 0.3),
+                            child: Icon(
+                              Icons.person,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              course.teacherName,
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.95),
+                                fontSize: isSmallScreen ? 13 : 14,
+                                fontWeight: FontWeight.w400,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 4),
-          Text(
-            AppText.of(context).topicsCount(syllabus.topics.length),
-            style: TextStyles.caption(context),
-          ),
-        ],
+        ),
       ),
     );
   }

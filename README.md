@@ -18,6 +18,7 @@ prolearn_ai-main/
 cd frontend
 flutter pub get
 flutter run -d chrome  # For web
+flutter run -d chrome --web-port 3000 --release
 flutter run            # For mobile
 ```
 

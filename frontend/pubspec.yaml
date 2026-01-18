@@ -45,6 +45,14 @@ dependencies:
   # HTTP client for API calls
   http: ^1.2.0
 
+  # Google APIs
+  google_sign_in: ^6.2.1
+  googleapis: ^13.2.0
+  extension_google_sign_in_as_googleapis_auth: ^2.0.12
+
+  # URL Launcher
+  url_launcher: ^6.2.5
+
 
 
 

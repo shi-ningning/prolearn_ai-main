@@ -3,13 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import '../../data/models/syllabus_model.dart';
 import '../../data/repositories/syllabus_repository.dart';
-import '../../data/services/course_seeder.dart';
 import '../../utils/logger.dart';
 
 class SyllabusProvider with ChangeNotifier {
   List<SyllabusModel> _syllabi = [];
   final SyllabusRepository _syllabusRepository = SyllabusRepository();
-  final CourseSeeder _courseSeeder = CourseSeeder();
   bool _isLoading = false;
   StreamSubscription<List<SyllabusModel>>? _syllabiStreamSubscription;
 
@@ -21,23 +19,12 @@ class SyllabusProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // Cancel existing stream if any
       await _syllabiStreamSubscription?.cancel();
       
-      // Load initial data
       _syllabi = await _syllabusRepository.getSyllabi();
-      
-      // If no courses exist, seed default courses
-      if (_syllabi.isEmpty) {
-        Logger.info('No courses found, seeding default courses...');
-        await _courseSeeder.seedDefaultCourses();
-        // Reload after seeding
-        _syllabi = await _syllabusRepository.getSyllabi();
-      }
       
       Logger.info('Loaded ${_syllabi.length} courses');
       
-      // Set up real-time stream
       _syllabiStreamSubscription = _syllabusRepository
           .getSyllabiStream()
           .listen(
