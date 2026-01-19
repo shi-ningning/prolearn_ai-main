@@ -88,100 +88,87 @@ class _AnimatedCardState extends State<AnimatedCard>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
     
-    return MouseRegion(
-      onEnter: (_) {
-        _controller.forward();
-      },
-      onExit: (_) {
+    return GestureDetector(
+      onTapDown: _handleTapDown,
+      onTapUp: _handleTapUp,
+      onTapCancel: _handleTapCancel,
+      onLongPress: widget.onLongPress == null
+          ? null
+          : () {
+              if (!kIsWeb) {
+                HapticFeedback.lightImpact();
+              }
+              widget.onLongPress?.call();
+            },
+      onDoubleTap: widget.onDoubleTap,
+      onTap: () {
         _controller.reverse();
+        widget.onTap?.call();
       },
-      child: GestureDetector(
-        onTapDown: _handleTapDown,
-        onTapUp: _handleTapUp,
-        onTapCancel: _handleTapCancel,
-        onLongPress: widget.onLongPress == null
-            ? null
-            : () {
-                if (!kIsWeb) {
-                  HapticFeedback.lightImpact();
-                }
-                widget.onLongPress?.call();
-              },
-        onDoubleTap: widget.onDoubleTap,
-        onTap: () {
-          _controller.reverse();
-          widget.onTap?.call();
-        },
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedBuilder(
-          animation: _controller,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: _scaleAnimation.value,
-              child: Container(
-                margin: widget.margin,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    // Primary shadow
-                    BoxShadow(
-                      color: colorScheme.primary.withValues(
-                        alpha: 0.15 * _glowAnimation.value,
-                      ),
-                      blurRadius: 20 * _glowAnimation.value,
-                      spreadRadius: -5,
-                      offset: const Offset(0, 8),
-                    ),
-                    // Secondary shadow
-                    BoxShadow(
-                      color: (isDark ? Colors.black : Colors.grey).withValues(
-                        alpha: isDark ? 0.5 : 0.1 + (_elevationAnimation.value * 0.02),
-                      ),
-                      blurRadius: _elevationAnimation.value * 3,
-                      offset: Offset(0, _elevationAnimation.value),
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                    child: BackdropFilter(
-                    filter: widget.useGlassmorphism 
-                      ? ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10)
-                      : ui.ImageFilter.blur(sigmaX: 0, sigmaY: 0),
-                    child: Container(
-                      padding: widget.padding,
-                      decoration: BoxDecoration(
-                        color: widget.useGlassmorphism
-                          ? (widget.backgroundColor ?? colorScheme.surface).withValues(
-                              alpha: isDark ? 0.7 : 0.85,
-                            )
-                          : (widget.backgroundColor ?? colorScheme.surface),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(
-                          color: colorScheme.primary.withValues(
-                            alpha: isDark ? (0.3 + (_glowAnimation.value * 0.2)) : (0.15 + (_glowAnimation.value * 0.2)),
-                          ),
-                          width: 1.5,
-                        ),
-                        gradient: widget.useGlassmorphism 
-                          ? LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                colorScheme.surface.withValues(alpha: isDark ? 0.8 : 0.95),
-                                colorScheme.surface.withValues(alpha: isDark ? 0.65 : 0.75),
-                              ],
-                            )
-                          : null,
-                      ),
-                      child: widget.child,
-                    ),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          return Container(
+            margin: widget.margin,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: colorScheme.primary.withValues(
+                    alpha: 0.15 * _glowAnimation.value,
                   ),
+                  blurRadius: 20 * _glowAnimation.value,
+                  spreadRadius: -5,
+                  offset: const Offset(0, 8),
+                ),
+                BoxShadow(
+                  color: (isDark ? Colors.black : Colors.grey).withValues(
+                    alpha: isDark ? 0.5 : 0.1 + (_elevationAnimation.value * 0.02),
+                  ),
+                  blurRadius: _elevationAnimation.value * 3,
+                  offset: Offset(0, _elevationAnimation.value),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                filter: widget.useGlassmorphism 
+                  ? ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10)
+                  : ui.ImageFilter.blur(sigmaX: 0, sigmaY: 0),
+                child: Container(
+                  padding: widget.padding,
+                  decoration: BoxDecoration(
+                    color: widget.useGlassmorphism
+                      ? (widget.backgroundColor ?? colorScheme.surface).withValues(
+                          alpha: isDark ? 0.7 : 0.85,
+                        )
+                      : (widget.backgroundColor ?? colorScheme.surface),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: colorScheme.primary.withValues(
+                        alpha: isDark ? (0.3 + (_glowAnimation.value * 0.2)) : (0.15 + (_glowAnimation.value * 0.2)),
+                      ),
+                      width: 1.5,
+                    ),
+                    gradient: widget.useGlassmorphism 
+                      ? LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            colorScheme.surface.withValues(alpha: isDark ? 0.8 : 0.95),
+                            colorScheme.surface.withValues(alpha: isDark ? 0.65 : 0.75),
+                          ],
+                        )
+                      : null,
+                  ),
+                  child: widget.child,
                 ),
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }

@@ -162,6 +162,68 @@ class _LoginPageState extends State<LoginPage> {
                             ),
                     ),
                     
+                    const SizedBox(height: 16),
+                    
+                    // Divider with OR text
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            color: colorScheme.onSurface.withOpacity(0.2),
+                            thickness: 1,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Text(
+                            'OR',
+                            style: TextStyle(
+                              color: colorScheme.onSurface.withOpacity(0.5),
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        Expanded(
+                          child: Divider(
+                            color: colorScheme.onSurface.withOpacity(0.2),
+                            thickness: 1,
+                          ),
+                        ),
+                      ],
+                    ),
+                    
+                    const SizedBox(height: 16),
+                    
+                    // Google Sign-In Button
+                    OutlinedButton.icon(
+                      onPressed: _isLoading ? null : _signInWithGoogle,
+                      icon: Icon(
+                        Icons.login,
+                        size: 24,
+                        color: colorScheme.onSurface,
+                      ),
+                      label: Text(
+                        'Sign in with Google',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: colorScheme.onSurface,
+                        ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: BorderSide(
+                          color: colorScheme.outline.withOpacity(0.3),
+                          width: 1.5,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        backgroundColor: colorScheme.surface,
+                      ),
+                    ),
+                    
                     const SizedBox(height: 24),
                     
                     // Register Link
@@ -347,6 +409,51 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading = false;
       });
       _showSnackBar('An error occurred: ${e.toString()}', isError: true);
+    }
+  }
+
+  Future<void> _signInWithGoogle() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await Provider.of<AppAuthProvider>(context, listen: false)
+          .signInWithGoogle();
+
+      if (!mounted) return;
+      
+      setState(() {
+        _isLoading = false;
+      });
+      
+      _showSnackBar('Signed in with Google successfully!', isError: false);
+      
+      await Future.delayed(const Duration(milliseconds: 800));
+      if (!mounted) return;
+      
+      Navigator.pushReplacementNamed(context, '/dashboard');
+      
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+      });
+      
+      String errorMessage = 'Google Sign-In failed';
+      if (e.toString().contains('popup_closed')) {
+        errorMessage = 'Sign-in was cancelled. Please try again.';
+      } else if (e.toString().contains('cancelled')) {
+        errorMessage = 'Sign-in was cancelled';
+      } else if (e.toString().contains('network')) {
+        errorMessage = 'Network error. Please check your connection.';
+      } else {
+        errorMessage = 'An error occurred: ${e.toString()}';
+      }
+      
+      _showSnackBar(errorMessage, isError: true);
     }
   }
 

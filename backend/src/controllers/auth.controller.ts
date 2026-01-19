@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import * as admin from 'firebase-admin';
 
 /**
  * User login
@@ -115,6 +116,75 @@ export const sendEmailVerification = async (req: Request, res: Response): Promis
       error: {
         code: 'INTERNAL_ERROR',
         message: 'An error occurred during email verification'
+      }
+    });
+  }
+};
+
+/**
+ * Google Classroom sign-in
+ */
+export const signInWithGoogleClassroom = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { idToken } = req.body;
+
+    if (!idToken) {
+      res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_TOKEN',
+          message: 'ID token is required'
+        }
+      });
+      return;
+    }
+
+    const decodedToken = await admin.auth().verifyIdToken(idToken);
+    
+    const uid = decodedToken.uid;
+    const email = decodedToken.email;
+    const name = decodedToken.name || 'User';
+
+    const customToken = await admin.auth().createCustomToken(uid);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        uid,
+        email,
+        name,
+        customToken,
+        message: 'Successfully signed in with Google Classroom'
+      }
+    });
+  } catch (error: any) {
+    if (error.code === 'auth/id-token-expired') {
+      res.status(401).json({
+        success: false,
+        error: {
+          code: 'TOKEN_EXPIRED',
+          message: 'ID token has expired'
+        }
+      });
+      return;
+    }
+
+    if (error.code === 'auth/argument-error') {
+      res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_TOKEN',
+          message: 'Invalid ID token'
+        }
+      });
+      return;
+    }
+
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'An error occurred during Google Classroom sign-in'
       }
     });
   }

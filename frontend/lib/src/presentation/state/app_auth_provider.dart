@@ -5,10 +5,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../data/services/firebase_service.dart';
+import '../../data/services/google_auth_service.dart';
 import '../../utils/logger.dart';
+import 'google_classroom_provider.dart';
 
 class AppAuthProvider extends ChangeNotifier {
   final FirebaseService _firebaseService = FirebaseService();
+  final GoogleAuthService _googleAuthService = GoogleAuthService();
+  GoogleClassroomProvider? _classroomProvider;
   
   // Backend API URL - Update this with your production URL
   static const String _apiBaseUrl = 'http://localhost:3000/api';
@@ -265,6 +269,65 @@ class AppAuthProvider extends ChangeNotifier {
 
   Future<void> logout() async {
     await _auth.signOut();
-    notifyListeners(); // 🔑 IMPORTANT
+    await _googleAuthService.signOut();
+    notifyListeners();
+  }
+
+  void setClassroomProvider(GoogleClassroomProvider provider) {
+    _classroomProvider = provider;
+  }
+
+  Future<void> signInWithGoogle() async {
+    try {
+      final userCredential = await _googleAuthService.signInWithGoogle();
+      
+      if (userCredential == null) {
+        throw Exception('Google Sign-In was cancelled');
+      }
+
+      final user = userCredential.user;
+      if (user != null) {
+        try {
+          final idToken = await user.getIdToken();
+          
+          final response = await _saveUserToMongoDB(
+            user.uid,
+            user.email ?? '',
+            user.displayName ?? 'User',
+            idToken,
+          );
+          
+          if (response) {
+            Logger.info('✅ User saved to MongoDB successfully');
+          } else {
+            Logger.warning('⚠️  Failed to save user to MongoDB');
+          }
+        } catch (e) {
+          Logger.warning('⚠️  Error saving to MongoDB: $e');
+        }
+        
+        if (_classroomProvider != null) {
+          try {
+            Logger.info('🔄 Waiting for authentication to propagate...');
+            await Future.delayed(const Duration(seconds: 1));
+            
+            Logger.info('🔄 Automatically signing in to Google Classroom...');
+            await _classroomProvider!.signIn();
+            if (_classroomProvider!.isSignedIn) {
+              Logger.info('✅ Google Classroom sign-in successful');
+            } else {
+              Logger.warning('⚠️  Google Classroom sign-in failed: ${_classroomProvider!.error}');
+            }
+          } catch (e) {
+            Logger.warning('⚠️  Google Classroom sign-in failed: $e');
+          }
+        }
+      }
+
+      notifyListeners();
+    } catch (e) {
+      Logger.error('Error signing in with Google: $e');
+      rethrow;
+    }
   }
 }

@@ -8,12 +8,16 @@ import { errorHandler } from './middleware/errorHandler';
 import { notFoundHandler } from './middleware/notFoundHandler';
 import routes from './routes';
 import { connectDatabase } from './config/database';
+import { initializeFirebase } from './config/firebase';
 
 // Load environment variables
 dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 3000;
+
+// Initialize Firebase Admin
+initializeFirebase();
 
 // Connect to MongoDB
 connectDatabase();

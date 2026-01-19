@@ -12,6 +12,7 @@ import 'src/presentation/state/project_provider.dart';
 import 'src/presentation/state/theme_provider.dart';
 import 'src/presentation/state/topic_progress_provider.dart';
 import 'src/presentation/state/language_provider.dart';
+import 'src/presentation/state/google_classroom_provider.dart';
 import 'src/routes/app_routes.dart';
 import 'src/utils/logger.dart';
 import 'src/theme/app_theme.dart';
@@ -56,16 +57,21 @@ Future<void> main() async {
 
   final themeProvider = ThemeProvider();
 
+  final googleClassroomProvider = GoogleClassroomProvider();
+  final appAuthProvider = AppAuthProvider();
+  appAuthProvider.setClassroomProvider(googleClassroomProvider);
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: themeProvider),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
-        ChangeNotifierProvider(create: (_) => AppAuthProvider()),
+        ChangeNotifierProvider.value(value: appAuthProvider),
         ChangeNotifierProvider(create: (_) => syllabusProvider),
         ChangeNotifierProvider(create: (_) => TaskProvider()),
         ChangeNotifierProvider(create: (_) => ProjectProvider()),
         ChangeNotifierProvider(create: (_) => topicProgressProvider),
+        ChangeNotifierProvider.value(value: googleClassroomProvider),
       ],
       child: const MyApp(),
     ),
