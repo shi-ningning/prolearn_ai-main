@@ -9,14 +9,14 @@ class TaskRepository {
     try {
       // Try query with orderBy first (requires index)
       try {
-        final QuerySnapshot snapshot = await _firestore
+        final QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
             .collection('tasks')
             .where('userId', isEqualTo: userId)
             .orderBy('dueDate', descending: false)
             .get();
-        
+
         return snapshot.docs.map((doc) {
-          final data = doc.data() as Map<String, dynamic>;
+          final data = doc.data();
           data['id'] = doc.id;
           return TaskModel.fromJson(data);
         }).toList();
@@ -24,17 +24,17 @@ class TaskRepository {
         // If index error, fall back to query without orderBy
         if (e.code == 'failed-precondition') {
           Logger.warning('Firestore index not found, using fallback query');
-          final QuerySnapshot snapshot = await _firestore
+          final QuerySnapshot<Map<String, dynamic>> snapshot = await _firestore
               .collection('tasks')
               .where('userId', isEqualTo: userId)
               .get();
-          
+
           final tasks = snapshot.docs.map((doc) {
-            final data = doc.data() as Map<String, dynamic>;
+            final data = doc.data();
             data['id'] = doc.id;
             return TaskModel.fromJson(data);
           }).toList();
-          
+
           // Sort in memory
           tasks.sort((a, b) => a.dueDate.compareTo(b.dueDate));
           return tasks;
@@ -56,19 +56,20 @@ class TaskRepository {
         .where('userId', isEqualTo: userId)
         .snapshots()
         .map((snapshot) {
-      final tasks = snapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
-        data['id'] = doc.id;
-        return TaskModel.fromJson(data);
-      }).toList();
-      
-      // Sort by due date in memory
-      tasks.sort((a, b) => a.dueDate.compareTo(b.dueDate));
-      return tasks;
-    }).handleError((error) {
-      Logger.error('Error in tasks stream', error);
-      return <TaskModel>[];
-    });
+          final tasks = snapshot.docs.map((doc) {
+            final data = doc.data();
+            data['id'] = doc.id;
+            return TaskModel.fromJson(data);
+          }).toList();
+
+          // Sort by due date in memory
+          tasks.sort((a, b) => a.dueDate.compareTo(b.dueDate));
+          return tasks;
+        })
+        .handleError((error) {
+          Logger.error('Error in tasks stream', error);
+          return <TaskModel>[];
+        });
   }
 
   Future<String> saveTask(TaskModel task) async {

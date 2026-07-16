@@ -5,10 +5,7 @@ import '../../../data/services/google_classroom_service.dart';
 class AssignmentDetailPage extends StatelessWidget {
   final GoogleClassroomAssignment assignment;
 
-  const AssignmentDetailPage({
-    super.key,
-    required this.assignment,
-  });
+  const AssignmentDetailPage({super.key, required this.assignment});
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +51,7 @@ class AssignmentDetailPage extends StatelessWidget {
                       '${assignment.maxPoints.toInt()} points',
                       style: TextStyle(
                         fontSize: 14,
-                        color: colorScheme.onSurface.withOpacity(0.7),
+                        color: colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                   const SizedBox(height: 24),
@@ -95,8 +92,10 @@ class AssignmentDetailPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    ...assignment.materials.map((material) =>
-                        _buildAttachment(material, colorScheme, isDark)),
+                    ...assignment.materials.map(
+                      (material) =>
+                          _buildAttachment(material, colorScheme, isDark),
+                    ),
                     const SizedBox(height: 16),
                     OutlinedButton(
                       onPressed: () {},
@@ -124,7 +123,7 @@ class AssignmentDetailPage extends StatelessWidget {
               color: colorScheme.surface,
               border: Border(
                 top: BorderSide(
-                  color: colorScheme.onSurface.withOpacity(0.1),
+                  color: colorScheme.onSurface.withValues(alpha: 0.1),
                   width: 1,
                 ),
               ),
@@ -149,7 +148,7 @@ class AssignmentDetailPage extends StatelessWidget {
                           : 'No due date',
                       style: TextStyle(
                         fontSize: 14,
-                        color: colorScheme.onSurface.withOpacity(0.6),
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -196,14 +195,14 @@ class AssignmentDetailPage extends StatelessWidget {
             Icon(
               Icons.comment_outlined,
               size: 20,
-              color: colorScheme.onSurface.withOpacity(0.6),
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
             ),
             const SizedBox(width: 12),
             Text(
               'Add class comment',
               style: TextStyle(
                 fontSize: 14,
-                color: colorScheme.onSurface.withOpacity(0.6),
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -219,24 +218,19 @@ class AssignmentDetailPage extends StatelessWidget {
   ) {
     IconData icon;
     String label;
-    String? link;
 
     if (material.driveFile != null) {
       icon = Icons.image;
       label = material.driveFile!;
-      link = null;
     } else if (material.youtubeVideo != null) {
       icon = Icons.video_library;
       label = material.youtubeVideo!;
-      link = null;
     } else if (material.link != null) {
       icon = Icons.link;
       label = material.link!;
-      link = material.link;
     } else if (material.form != null) {
       icon = Icons.assignment;
       label = material.form!;
-      link = null;
     } else {
       return const SizedBox.shrink();
     }
@@ -252,11 +246,7 @@ class AssignmentDetailPage extends StatelessWidget {
               color: Colors.red.shade100,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(
-              icon,
-              color: Colors.red.shade700,
-              size: 24,
-            ),
+            child: Icon(icon, color: Colors.red.shade700, size: 24),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -265,10 +255,7 @@ class AssignmentDetailPage extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: colorScheme.onSurface,
-                  ),
+                  style: TextStyle(fontSize: 14, color: colorScheme.onSurface),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -278,7 +265,7 @@ class AssignmentDetailPage extends StatelessWidget {
           IconButton(
             icon: Icon(
               Icons.more_vert,
-              color: colorScheme.onSurface.withOpacity(0.6),
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
             ),
             onPressed: () {},
           ),
@@ -307,7 +294,7 @@ class AssignmentDetailPage extends StatelessWidget {
       'Sep',
       'Oct',
       'Nov',
-      'Dec'
+      'Dec',
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }

@@ -37,7 +37,6 @@ class AnimatedCard extends StatefulWidget {
 class _AnimatedCardState extends State<AnimatedCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
   late Animation<double> _elevationAnimation;
   late Animation<double> _glowAnimation;
 
@@ -48,18 +47,14 @@ class _AnimatedCardState extends State<AnimatedCard>
       duration: widget.animationDuration,
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.03).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
     _elevationAnimation = Tween<double>(
       begin: widget.elevation,
       end: widget.elevation + 8,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
-    _glowAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic),
-    );
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    _glowAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
   }
 
   @override
@@ -87,7 +82,7 @@ class _AnimatedCardState extends State<AnimatedCard>
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return GestureDetector(
       onTapDown: _handleTapDown,
       onTapUp: _handleTapUp,
@@ -124,7 +119,9 @@ class _AnimatedCardState extends State<AnimatedCard>
                 ),
                 BoxShadow(
                   color: (isDark ? Colors.black : Colors.grey).withValues(
-                    alpha: isDark ? 0.5 : 0.1 + (_elevationAnimation.value * 0.02),
+                    alpha: isDark
+                        ? 0.5
+                        : 0.1 + (_elevationAnimation.value * 0.02),
                   ),
                   blurRadius: _elevationAnimation.value * 3,
                   offset: Offset(0, _elevationAnimation.value),
@@ -133,35 +130,40 @@ class _AnimatedCardState extends State<AnimatedCard>
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(20),
-                child: BackdropFilter(
-                filter: widget.useGlassmorphism 
-                  ? ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10)
-                  : ui.ImageFilter.blur(sigmaX: 0, sigmaY: 0),
+              child: BackdropFilter(
+                filter: widget.useGlassmorphism
+                    ? ui.ImageFilter.blur(sigmaX: 10, sigmaY: 10)
+                    : ui.ImageFilter.blur(sigmaX: 0, sigmaY: 0),
                 child: Container(
                   padding: widget.padding,
                   decoration: BoxDecoration(
                     color: widget.useGlassmorphism
-                      ? (widget.backgroundColor ?? colorScheme.surface).withValues(
-                          alpha: isDark ? 0.7 : 0.85,
-                        )
-                      : (widget.backgroundColor ?? colorScheme.surface),
+                        ? (widget.backgroundColor ?? colorScheme.surface)
+                              .withValues(alpha: isDark ? 0.7 : 0.85)
+                        : (widget.backgroundColor ?? colorScheme.surface),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: colorScheme.primary.withValues(
-                        alpha: isDark ? (0.3 + (_glowAnimation.value * 0.2)) : (0.15 + (_glowAnimation.value * 0.2)),
+                        alpha: isDark
+                            ? (0.3 + (_glowAnimation.value * 0.2))
+                            : (0.15 + (_glowAnimation.value * 0.2)),
                       ),
                       width: 1.5,
                     ),
-                    gradient: widget.useGlassmorphism 
-                      ? LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            colorScheme.surface.withValues(alpha: isDark ? 0.8 : 0.95),
-                            colorScheme.surface.withValues(alpha: isDark ? 0.65 : 0.75),
-                          ],
-                        )
-                      : null,
+                    gradient: widget.useGlassmorphism
+                        ? LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              colorScheme.surface.withValues(
+                                alpha: isDark ? 0.8 : 0.95,
+                              ),
+                              colorScheme.surface.withValues(
+                                alpha: isDark ? 0.65 : 0.75,
+                              ),
+                            ],
+                          )
+                        : null,
                   ),
                   child: widget.child,
                 ),
@@ -193,25 +195,21 @@ class AnimatedStatCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: colorScheme.outline.withOpacity(0.1),
+          color: colorScheme.outline.withValues(alpha: 0.1),
           width: 1,
         ),
       ),
       child: Row(
         children: [
           if (icon != null) ...[
-            Icon(
-              icon,
-              color: color,
-              size: 32,
-            ),
+            Icon(icon, color: color, size: 32),
             const SizedBox(width: 16),
           ],
           Expanded(
@@ -223,7 +221,7 @@ class AnimatedStatCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: colorScheme.onSurface.withOpacity(0.7),
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                   ),
                 ),
                 const SizedBox(height: 4),

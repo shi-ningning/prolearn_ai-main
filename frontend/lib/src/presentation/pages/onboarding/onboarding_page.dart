@@ -4,6 +4,7 @@ import '../../../constants/app_text.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/animated_background.dart';
 import '../../widgets/animated_card.dart';
+import '../../../constants/app_assets.dart';
 
 class OnboardingPage extends StatefulWidget {
   const OnboardingPage({super.key});
@@ -12,7 +13,7 @@ class OnboardingPage extends StatefulWidget {
   State<OnboardingPage> createState() => _OnboardingPageState();
 }
 
-class _OnboardingPageState extends State<OnboardingPage> 
+class _OnboardingPageState extends State<OnboardingPage>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
@@ -41,15 +42,13 @@ class _OnboardingPageState extends State<OnboardingPage>
       ),
     );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic),
-      ),
-    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.2, 1.0, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _controller.forward();
   }
@@ -64,7 +63,7 @@ class _OnboardingPageState extends State<OnboardingPage>
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final size = MediaQuery.of(context).size;
-    
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: AnimatedBackground(
@@ -74,13 +73,14 @@ class _OnboardingPageState extends State<OnboardingPage>
             padding: const EdgeInsets.symmetric(horizontal: 32.0),
             child: ConstrainedBox(
               constraints: BoxConstraints(
-                minHeight: size.height - MediaQuery.of(context).padding.vertical,
+                minHeight:
+                    size.height - MediaQuery.of(context).padding.vertical,
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 40),
-                  
+
                   // Animated Logo Container
                   FadeTransition(
                     opacity: _fadeAnimation,
@@ -89,9 +89,9 @@ class _OnboardingPageState extends State<OnboardingPage>
                       child: _buildAnimatedLogo(colorScheme),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 50),
-                  
+
                   // App Name
                   SlideTransition(
                     position: _slideAnimation,
@@ -99,10 +99,7 @@ class _OnboardingPageState extends State<OnboardingPage>
                       opacity: _fadeAnimation,
                       child: ShaderMask(
                         shaderCallback: (bounds) => LinearGradient(
-                          colors: [
-                            colorScheme.primary,
-                            colorScheme.secondary,
-                          ],
+                          colors: [colorScheme.primary, colorScheme.secondary],
                         ).createShader(bounds),
                         child: Text(
                           AppText.of(context).appName,
@@ -118,9 +115,9 @@ class _OnboardingPageState extends State<OnboardingPage>
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 30),
-                  
+
                   // Description Card
                   SlideTransition(
                     position: _slideAnimation,
@@ -135,7 +132,9 @@ class _OnboardingPageState extends State<OnboardingPage>
                               AppText.of(context).onboardingDescription,
                               style: TextStyle(
                                 fontSize: 17,
-                                color: colorScheme.onSurface.withValues(alpha: 0.95),
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.95,
+                                ),
                                 height: 1.6,
                                 fontWeight: FontWeight.w500,
                                 letterSpacing: 0.2,
@@ -165,9 +164,9 @@ class _OnboardingPageState extends State<OnboardingPage>
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 50),
-                  
+
                   // Get Started Button
                   FadeTransition(
                     opacity: _fadeAnimation,
@@ -178,7 +177,7 @@ class _OnboardingPageState extends State<OnboardingPage>
                       },
                     ),
                   ),
-                  
+
                   const SizedBox(height: 40),
                 ],
               ),
@@ -197,17 +196,14 @@ class _OnboardingPageState extends State<OnboardingPage>
         return Transform.rotate(
           angle: angle,
           child: Container(
-            width: 140,
-            height: 140,
+            width: 150,
+            height: 150,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  colorScheme.primary,
-                  colorScheme.secondary,
-                ],
+                colors: [colorScheme.primary, colorScheme.secondary],
               ),
               boxShadow: [
                 BoxShadow(
@@ -219,10 +215,9 @@ class _OnboardingPageState extends State<OnboardingPage>
             ),
             child: Transform.rotate(
               angle: -angle,
-              child: Icon(
-                Icons.school_rounded,
-                size: 70,
-                color: colorScheme.onPrimary,
+              child: Transform.scale(
+                scale: 1.5,
+                child: Image.asset(AppAssets.logo, fit: BoxFit.contain),
               ),
             ),
           ),
@@ -244,11 +239,7 @@ class _OnboardingPageState extends State<OnboardingPage>
             color: colorScheme.primary.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            size: 20,
-            color: colorScheme.primary,
-          ),
+          child: Icon(icon, size: 20, color: colorScheme.primary),
         ),
         const SizedBox(width: 12),
         Text(

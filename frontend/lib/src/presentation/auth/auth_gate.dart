@@ -1,16 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../presentation/pages/auth/email_verification_page.dart';
 
 class AuthGate extends StatelessWidget {
   final Widget loggedIn;
   final Widget loggedOut;
 
-  const AuthGate({
-    super.key,
-    required this.loggedIn,
-    required this.loggedOut,
-  });
+  const AuthGate({super.key, required this.loggedIn, required this.loggedOut});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +19,7 @@ class AuthGate extends StatelessWidget {
         }
 
         if (snapshot.hasData) {
-          final user = snapshot.data!;
+          // final user = snapshot.data!;
 
           // DEVELOPMENT MODE: Email verification disabled
           // Comment out the line below to re-enable email verification

@@ -11,6 +11,7 @@ import '../../state/syllabus_provider.dart';
 import '../../state/topic_progress_provider.dart';
 import '../../state/google_classroom_provider.dart';
 import 'classroom_detail_page.dart';
+import 'chat_page.dart';
 
 class LearningPage extends StatefulWidget {
   const LearningPage({super.key});
@@ -36,7 +37,7 @@ class _LearningPageState extends State<LearningPage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
@@ -71,7 +72,7 @@ class _LearningPageState extends State<LearningPage> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w400,
-                color: colorScheme.onSurface.withOpacity(0.6),
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
                 letterSpacing: 0.2,
               ),
             ),
@@ -87,7 +88,10 @@ class _LearningPageState extends State<LearningPage> {
                   radius: 18,
                   backgroundColor: colorScheme.primary,
                   child: Text(
-                    FirebaseAuth.instance.currentUser?.displayName?.substring(0, 1).toUpperCase() ?? 'U',
+                    FirebaseAuth.instance.currentUser?.displayName
+                            ?.substring(0, 1)
+                            .toUpperCase() ??
+                        'U',
                     style: TextStyle(
                       color: colorScheme.onPrimary,
                       fontWeight: FontWeight.bold,
@@ -100,7 +104,7 @@ class _LearningPageState extends State<LearningPage> {
                   FirebaseAuth.instance.currentUser?.displayName ?? 'User',
                   style: TextStyle(
                     fontSize: 10,
-                    color: colorScheme.onSurface.withOpacity(0.7),
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w500,
                   ),
                   maxLines: 1,
@@ -110,10 +114,7 @@ class _LearningPageState extends State<LearningPage> {
             ),
           ),
         ],
-        iconTheme: IconThemeData(
-          color: colorScheme.onSurface,
-          size: 24,
-        ),
+        iconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),
         backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 70,
@@ -132,9 +133,7 @@ class _LearningPageState extends State<LearningPage> {
         final classroomCourses = classroomProvider.courses;
 
         if (syllabusProvider.isLoading || classroomProvider.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (syllabi.isEmpty && classroomCourses.isEmpty) {
@@ -147,38 +146,36 @@ class _LearningPageState extends State<LearningPage> {
                   Icon(
                     Icons.school_outlined,
                     size: 80,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.5),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     AppText.of(context).noCoursesAvailable,
                     style: TextStyles.headline(context).copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.7),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.7),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Connect to Google Classroom to import your classes',
                     style: TextStyles.body(context).copyWith(
-                      color: Theme.of(context)
-                          .colorScheme
-                          .onSurface
-                          .withValues(alpha: 0.5),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton.icon(
                     onPressed: () async {
+                      final messenger = ScaffoldMessenger.of(context);
                       await classroomProvider.signIn();
                       if (classroomProvider.error != null) {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        messenger.showSnackBar(
                           SnackBar(
                             content: Text(classroomProvider.error!),
                             backgroundColor: Colors.red,
@@ -207,7 +204,6 @@ class _LearningPageState extends State<LearningPage> {
           builder: (context, constraints) {
             final isSmallScreen = constraints.maxWidth < 600;
             final padding = isSmallScreen ? 16.0 : 24.0;
-            final spacing = isSmallScreen ? 12.0 : 16.0;
             final totalCourses = syllabi.length + classroomCourses.length;
 
             return Padding(
@@ -235,9 +231,10 @@ class _LearningPageState extends State<LearningPage> {
                       if (!classroomProvider.isSignedIn)
                         TextButton.icon(
                           onPressed: () async {
+                            final messenger = ScaffoldMessenger.of(context);
                             await classroomProvider.signIn();
                             if (classroomProvider.error != null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
+                              messenger.showSnackBar(
                                 SnackBar(
                                   content: Text(classroomProvider.error!),
                                   backgroundColor: Colors.red,
@@ -261,14 +258,24 @@ class _LearningPageState extends State<LearningPage> {
                       itemBuilder: (context, index) {
                         if (index < classroomCourses.length) {
                           return Padding(
-                            padding: EdgeInsets.only(bottom: isSmallScreen ? 12.0 : 16.0),
-                            child: _buildGoogleClassroomCard(classroomCourses[index], isSmallScreen),
+                            padding: EdgeInsets.only(
+                              bottom: isSmallScreen ? 12.0 : 16.0,
+                            ),
+                            child: _buildGoogleClassroomCard(
+                              classroomCourses[index],
+                              isSmallScreen,
+                            ),
                           );
                         } else {
                           final syllabusIndex = index - classroomCourses.length;
                           return Padding(
-                            padding: EdgeInsets.only(bottom: isSmallScreen ? 12.0 : 16.0),
-                            child: _buildSubjectCard(syllabi[syllabusIndex], isSmallScreen),
+                            padding: EdgeInsets.only(
+                              bottom: isSmallScreen ? 12.0 : 16.0,
+                            ),
+                            child: _buildSubjectCard(
+                              syllabi[syllabusIndex],
+                              isSmallScreen,
+                            ),
                           );
                         }
                       },
@@ -283,7 +290,10 @@ class _LearningPageState extends State<LearningPage> {
     );
   }
 
-  Widget _buildSubjectCard(SyllabusModel syllabus, [bool isSmallScreen = false]) {
+  Widget _buildSubjectCard(
+    SyllabusModel syllabus, [
+    bool isSmallScreen = false,
+  ]) {
     final subjectColors = [
       const Color(0xFF1976D2),
       const Color(0xFF388E3C),
@@ -310,10 +320,7 @@ class _LearningPageState extends State<LearningPage> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                subjectColor,
-                subjectColor.withValues(alpha: 0.85),
-              ],
+              colors: [subjectColor, subjectColor.withValues(alpha: 0.85)],
             ),
           ),
           child: Stack(
@@ -332,12 +339,35 @@ class _LearningPageState extends State<LearningPage> {
               ),
               Positioned(
                 right: 8,
+                bottom: 8,
+                child: IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.smart_toy_outlined,
+                      color: Colors.white,
+                    ),
+                  ),
+                  tooltip: 'Ask AI Assistant',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatPage(subject: syllabus.title),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              Positioned(
+                right: 8,
                 top: 8,
                 child: IconButton(
-                  icon: const Icon(
-                    Icons.more_vert,
-                    color: Colors.white,
-                  ),
+                  icon: const Icon(Icons.more_vert, color: Colors.white),
                   onPressed: () {},
                 ),
               ),
@@ -364,7 +394,9 @@ class _LearningPageState extends State<LearningPage> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          AppText.of(context).topicsCount(syllabus.topics.length),
+                          AppText.of(
+                            context,
+                          ).topicsCount(syllabus.topics.length),
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.9),
                             fontSize: isSmallScreen ? 13 : 14,
@@ -379,9 +411,14 @@ class _LearningPageState extends State<LearningPage> {
                         children: [
                           CircleAvatar(
                             radius: 16,
-                            backgroundColor: Colors.white.withValues(alpha: 0.3),
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.3,
+                            ),
                             child: Text(
-                              FirebaseAuth.instance.currentUser?.displayName?.substring(0, 1).toUpperCase() ?? 'T',
+                              FirebaseAuth.instance.currentUser?.displayName
+                                      ?.substring(0, 1)
+                                      .toUpperCase() ??
+                                  'T',
                               style: const TextStyle(
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
@@ -392,7 +429,8 @@ class _LearningPageState extends State<LearningPage> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              FirebaseAuth.instance.currentUser?.displayName ?? 'Teacher',
+                              FirebaseAuth.instance.currentUser?.displayName ??
+                                  'Teacher',
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.95),
                                 fontSize: isSmallScreen ? 13 : 14,
@@ -415,7 +453,10 @@ class _LearningPageState extends State<LearningPage> {
     );
   }
 
-  Widget _buildGoogleClassroomCard(dynamic course, [bool isSmallScreen = false]) {
+  Widget _buildGoogleClassroomCard(
+    dynamic course, [
+    bool isSmallScreen = false,
+  ]) {
     final subjectColors = [
       const Color(0xFF1976D2),
       const Color(0xFF388E3C),
@@ -434,14 +475,21 @@ class _LearningPageState extends State<LearningPage> {
           PageRouteBuilder(
             pageBuilder: (context, animation, secondaryAnimation) =>
                 ClassroomDetailPage(course: course),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-              const begin = Offset(1.0, 0.0);
-              const end = Offset.zero;
-              const curve = Curves.easeInOut;
-              var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-              var offsetAnimation = animation.drive(tween);
-              return SlideTransition(position: offsetAnimation, child: child);
-            },
+            transitionsBuilder:
+                (context, animation, secondaryAnimation, child) {
+                  const begin = Offset(1.0, 0.0);
+                  const end = Offset.zero;
+                  const curve = Curves.easeInOut;
+                  var tween = Tween(
+                    begin: begin,
+                    end: end,
+                  ).chain(CurveTween(curve: curve));
+                  var offsetAnimation = animation.drive(tween);
+                  return SlideTransition(
+                    position: offsetAnimation,
+                    child: child,
+                  );
+                },
           ),
         );
       },
@@ -454,10 +502,7 @@ class _LearningPageState extends State<LearningPage> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                subjectColor,
-                subjectColor.withValues(alpha: 0.85),
-              ],
+              colors: [subjectColor, subjectColor.withValues(alpha: 0.85)],
             ),
           ),
           child: Stack(
@@ -478,18 +523,18 @@ class _LearningPageState extends State<LearningPage> {
                 right: 8,
                 top: 8,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        Icons.school,
-                        color: Colors.white,
-                        size: 14,
-                      ),
+                      Icon(Icons.school, color: Colors.white, size: 14),
                       const SizedBox(width: 4),
                       Text(
                         'Classroom',
@@ -501,6 +546,32 @@ class _LearningPageState extends State<LearningPage> {
                       ),
                     ],
                   ),
+                ),
+              ),
+              Positioned(
+                right: 8,
+                bottom: 8,
+                child: IconButton(
+                  icon: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.2),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.smart_toy_outlined,
+                      color: Colors.white,
+                    ),
+                  ),
+                  tooltip: 'Ask AI Assistant',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatPage(subject: course.name),
+                      ),
+                    );
+                  },
                 ),
               ),
               Padding(
@@ -543,7 +614,9 @@ class _LearningPageState extends State<LearningPage> {
                         children: [
                           CircleAvatar(
                             radius: 16,
-                            backgroundColor: Colors.white.withValues(alpha: 0.3),
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.3,
+                            ),
                             child: Icon(
                               Icons.person,
                               color: Colors.white,
@@ -601,9 +674,9 @@ class _LearningPageState extends State<LearningPage> {
                   Expanded(
                     child: Text(
                       syllabus.title,
-                      style: TextStyles.headline(context).copyWith(
-                        fontSize: isSmallScreen ? 24 : 32,
-                      ),
+                      style: TextStyles.headline(
+                        context,
+                      ).copyWith(fontSize: isSmallScreen ? 24 : 32),
                     ),
                   ),
                 ],
@@ -611,9 +684,9 @@ class _LearningPageState extends State<LearningPage> {
               SizedBox(height: isSmallScreen ? 16 : 24),
               Text(
                 syllabus.description,
-                style: TextStyles.body(context).copyWith(
-                  fontSize: isSmallScreen ? 14 : 16,
-                ),
+                style: TextStyles.body(
+                  context,
+                ).copyWith(fontSize: isSmallScreen ? 14 : 16),
               ),
               SizedBox(height: isSmallScreen ? 16 : 24),
               // Progress indicator
@@ -653,7 +726,9 @@ class _LearningPageState extends State<LearningPage> {
                           const SizedBox(height: 8),
                           LinearProgressIndicator(
                             value: progress / 100,
-                            backgroundColor: AppColors.primary.withValues(alpha: 0.2),
+                            backgroundColor: AppColors.primary.withValues(
+                              alpha: 0.2,
+                            ),
                             valueColor: AlwaysStoppedAnimation<Color>(
                               AppColors.primary,
                             ),
@@ -662,8 +737,9 @@ class _LearningPageState extends State<LearningPage> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            AppText.of(context)
-                                .completedTopics(completedCount, totalTopics),
+                            AppText.of(
+                              context,
+                            ).completedTopics(completedCount, totalTopics),
                             style: TextStyles.caption(context),
                           ),
                         ],
@@ -690,31 +766,30 @@ class _LearningPageState extends State<LearningPage> {
                           topic,
                         );
 
-                    return AnimatedCard(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      backgroundColor: isCompleted
-                          ? AppColors.tertiary.withValues(alpha: 0.1)
-                          : null,
-                      onTap: () async {
-                        // Toggle completion on tap
-                        try {
-                          await progressProvider.toggleTopicCompletion(
-                            syllabus.id,
-                            topic,
-                            !isCompleted,
-                          );
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                '${AppText.of(context, listen: false).errorPrefix}: $e',
-                              ),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      },
-                      child: ListTile(
+                        return AnimatedCard(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          backgroundColor: isCompleted
+                              ? AppColors.tertiary.withValues(alpha: 0.1)
+                              : null,
+                          onTap: () async {
+                            final messenger = ScaffoldMessenger.of(context);
+                            final appText = AppText.of(context, listen: false);
+                            try {
+                              await progressProvider.toggleTopicCompletion(
+                                syllabus.id,
+                                topic,
+                                !isCompleted,
+                              );
+                            } catch (e) {
+                              messenger.showSnackBar(
+                                SnackBar(
+                                  content: Text('${appText.errorPrefix}: $e'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          },
+                          child: ListTile(
                             leading: CircleAvatar(
                               radius: isSmallScreen ? 14 : 16,
                               backgroundColor: isCompleted
@@ -743,30 +818,31 @@ class _LearningPageState extends State<LearningPage> {
                                     ? TextDecoration.lineThrough
                                     : null,
                                 color: isCompleted
-                                    ? Theme.of(context)
-                                        .colorScheme
-                                        .onSurface
-                                        .withValues(alpha: 0.6)
+                                    ? Theme.of(context).colorScheme.onSurface
+                                          .withValues(alpha: 0.6)
                                     : null,
                               ),
                             ),
                             trailing: Checkbox(
                               value: isCompleted,
                               onChanged: (value) async {
+                                final messenger = ScaffoldMessenger.of(context);
+                                final appText = AppText.of(
+                                  context,
+                                  listen: false,
+                                );
                                 try {
                                   await progressProvider.toggleTopicCompletion(
                                     syllabus.id,
                                     topic,
                                     value ?? false,
                                   );
-                                  ScaffoldMessenger.of(context).showSnackBar(
+                                  messenger.showSnackBar(
                                     SnackBar(
                                       content: Text(
                                         value == true
-                                            ? AppText.of(context, listen: false)
-                                                .topicCompleted
-                                            : AppText.of(context, listen: false)
-                                                .topicIncomplete,
+                                            ? appText.topicCompleted
+                                            : appText.topicIncomplete,
                                       ),
                                       backgroundColor: value == true
                                           ? Colors.green
@@ -775,10 +851,10 @@ class _LearningPageState extends State<LearningPage> {
                                     ),
                                   );
                                 } catch (e) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
+                                  messenger.showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        '${AppText.of(context, listen: false).errorPrefix}: $e',
+                                        '${appText.errorPrefix}: $e',
                                       ),
                                       backgroundColor: Colors.red,
                                     ),
@@ -788,7 +864,11 @@ class _LearningPageState extends State<LearningPage> {
                               activeColor: AppColors.tertiary,
                             ),
                             onTap: () async {
-                              // Toggle completion on tap
+                              final messenger = ScaffoldMessenger.of(context);
+                              final appText = AppText.of(
+                                context,
+                                listen: false,
+                              );
                               try {
                                 await progressProvider.toggleTopicCompletion(
                                   syllabus.id,
@@ -796,11 +876,9 @@ class _LearningPageState extends State<LearningPage> {
                                   !isCompleted,
                                 );
                               } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                messenger.showSnackBar(
                                   SnackBar(
-                                    content: Text(
-                                      '${AppText.of(context, listen: false).errorPrefix}: $e',
-                                    ),
+                                    content: Text('${appText.errorPrefix}: $e'),
                                     backgroundColor: Colors.red,
                                   ),
                                 );

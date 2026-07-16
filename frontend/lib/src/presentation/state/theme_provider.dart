@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../theme/app_theme.dart';
 import '../../utils/logger.dart';
@@ -69,10 +68,11 @@ class ThemeProvider with ChangeNotifier, WidgetsBindingObserver {
 
   void _applyTheme(AppThemeMode mode) {
     _themeMode = mode;
-    
+
     if (mode == AppThemeMode.system) {
       // Use system brightness
-      final brightness = WidgetsBinding.instance.platformDispatcher.platformBrightness;
+      final brightness =
+          WidgetsBinding.instance.platformDispatcher.platformBrightness;
       _isDarkMode = brightness == Brightness.dark;
     } else {
       _isDarkMode = mode == AppThemeMode.dark;

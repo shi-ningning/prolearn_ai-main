@@ -8,12 +8,18 @@ class FirebaseService {
   }
 
   /// Set a document with a specific ID (creates or updates)
-  Future<void> setDocument(String collection, String id, Map<String, dynamic> data) async {
+  Future<void> setDocument(
+    String collection,
+    String id,
+    Map<String, dynamic> data,
+  ) async {
     await _firestore.collection(collection).doc(id).set(data);
   }
 
   Future<List<Map<String, dynamic>>> getDocuments(String collection) async {
-    final QuerySnapshot snapshot = await _firestore.collection(collection).get();
+    final QuerySnapshot snapshot = await _firestore
+        .collection(collection)
+        .get();
     return snapshot.docs.map((doc) {
       final data = doc.data() as Map<String, dynamic>;
       // Include document ID
@@ -22,12 +28,22 @@ class FirebaseService {
     }).toList();
   }
 
-  Future<Map<String, dynamic>?> getDocument(String collection, String id) async {
-    final DocumentSnapshot doc = await _firestore.collection(collection).doc(id).get();
+  Future<Map<String, dynamic>?> getDocument(
+    String collection,
+    String id,
+  ) async {
+    final DocumentSnapshot doc = await _firestore
+        .collection(collection)
+        .doc(id)
+        .get();
     return doc.exists ? doc.data() as Map<String, dynamic>? : null;
   }
 
-  Future<void> updateDocument(String collection, String id, Map<String, dynamic> data) async {
+  Future<void> updateDocument(
+    String collection,
+    String id,
+    Map<String, dynamic> data,
+  ) async {
     await _firestore.collection(collection).doc(id).update(data);
   }
 
@@ -39,7 +55,7 @@ class FirebaseService {
   Stream<List<Map<String, dynamic>>> getDocumentsStream(String collection) {
     return _firestore.collection(collection).snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
-        final data = doc.data() as Map<String, dynamic>;
+        final data = doc.data();
         data['id'] = doc.id;
         return data;
       }).toList();

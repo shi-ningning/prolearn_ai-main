@@ -59,6 +59,7 @@ class EmailVerificationPage extends StatelessWidget {
             ElevatedButton(
               onPressed: () async {
                 await user?.sendEmailVerification();
+                if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(
@@ -75,6 +76,7 @@ class EmailVerificationPage extends StatelessWidget {
             TextButton(
               onPressed: () async {
                 await user?.reload();
+                if (!context.mounted) return;
                 if (FirebaseAuth.instance.currentUser!.emailVerified) {
                   Navigator.pushReplacementNamed(context, '/dashboard');
                 }

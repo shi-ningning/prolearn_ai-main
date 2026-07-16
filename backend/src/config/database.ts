@@ -1,4 +1,9 @@
 import mongoose from 'mongoose';
+import dns from 'dns';
+
+// Force use of public DNS servers to resolve MongoDB Atlas SRV records
+// this is a workaround for environments where local DNS (127.0.0.1) is broken
+dns.setServers(['8.8.8.8', '1.1.1.1']);
 
 /**
  * MongoDB Database Configuration

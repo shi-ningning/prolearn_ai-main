@@ -47,35 +47,38 @@ class _ProgressPageState extends State<ProgressPage> {
     final totalTopics = syllabus.topics.length;
     if (totalTopics == 0) return 0;
 
-    final progress = progressProvider.getSyllabusProgress(syllabus.id, totalTopics);
-    
+    final progress = progressProvider.getSyllabusProgress(
+      syllabus.id,
+      totalTopics,
+    );
+
     // If no topic progress, fall back to task-based calculation
     if (progress == 0) {
       // Get all tasks (completed and pending)
       final allTasks = taskProvider.allTasks;
-      
+
       // If no tasks at all, return 0%
       if (allTasks.isEmpty) {
         return 0;
       }
-      
+
       // Create subject keywords for matching
       final subjectKeywords = [
         syllabus.title.toLowerCase(),
         ...syllabus.title.toLowerCase().split(' ').where((w) => w.length > 3),
         ...syllabus.topics.map((t) => t.toLowerCase()),
       ];
-      
+
       // Count tasks related to this subject
       int matchingCompletedTasks = 0;
       int matchingTotalTasks = 0;
-      
+
       for (final task in allTasks) {
         final taskText = '${task.title} ${task.description}'.toLowerCase();
-        final isRelated = subjectKeywords.any((keyword) => 
-          keyword.length > 2 && taskText.contains(keyword)
+        final isRelated = subjectKeywords.any(
+          (keyword) => keyword.length > 2 && taskText.contains(keyword),
         );
-        
+
         if (isRelated) {
           matchingTotalTasks++;
           if (task.isCompleted) {
@@ -83,16 +86,18 @@ class _ProgressPageState extends State<ProgressPage> {
           }
         }
       }
-      
+
       // If no matching tasks, return 0%
       if (matchingTotalTasks == 0) {
         return 0;
       }
-      
+
       // Calculate progress: completed matching tasks / total matching tasks
-      return ((matchingCompletedTasks / matchingTotalTasks) * 100).round().clamp(0, 100);
+      return ((matchingCompletedTasks / matchingTotalTasks) * 100)
+          .round()
+          .clamp(0, 100);
     }
-    
+
     return progress;
   }
 
@@ -127,7 +132,7 @@ class _ProgressPageState extends State<ProgressPage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
@@ -162,7 +167,7 @@ class _ProgressPageState extends State<ProgressPage> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w400,
-                color: colorScheme.onSurface.withOpacity(0.6),
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
                 letterSpacing: 0.2,
               ),
             ),
@@ -178,7 +183,10 @@ class _ProgressPageState extends State<ProgressPage> {
                   radius: 18,
                   backgroundColor: colorScheme.primary,
                   child: Text(
-                    FirebaseAuth.instance.currentUser?.displayName?.substring(0, 1).toUpperCase() ?? 'U',
+                    FirebaseAuth.instance.currentUser?.displayName
+                            ?.substring(0, 1)
+                            .toUpperCase() ??
+                        'U',
                     style: TextStyle(
                       color: colorScheme.onPrimary,
                       fontWeight: FontWeight.bold,
@@ -191,7 +199,7 @@ class _ProgressPageState extends State<ProgressPage> {
                   FirebaseAuth.instance.currentUser?.displayName ?? 'User',
                   style: TextStyle(
                     fontSize: 10,
-                    color: colorScheme.onSurface.withOpacity(0.7),
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w500,
                   ),
                   maxLines: 1,
@@ -201,10 +209,7 @@ class _ProgressPageState extends State<ProgressPage> {
             ),
           ),
         ],
-        iconTheme: IconThemeData(
-          color: colorScheme.onSurface,
-          size: 24,
-        ),
+        iconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),
         backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 70,
@@ -224,29 +229,26 @@ class _ProgressPageState extends State<ProgressPage> {
                     Icon(
                       Icons.school_outlined,
                       size: 80,
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withValues(alpha: 0.5),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withValues(alpha: 0.5),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       AppText.of(context).noSubjectsAvailable,
-                    style: TextStyles.headline(context).copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.7),
+                      style: TextStyles.headline(context).copyWith(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.7),
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       AppText.of(context).subjectsWillAppear,
                       style: TextStyles.body(context).copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withValues(alpha: 0.5),
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withValues(alpha: 0.5),
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -264,46 +266,50 @@ class _ProgressPageState extends State<ProgressPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
-              children: [
-                Icon(
-                  Icons.trending_up,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 32,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  AppText.of(context).yourProgress,
-                  style: TextStyles.headline(context).copyWith(
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.5,
+                    children: [
+                      Icon(
+                        Icons.trending_up,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 32,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        AppText.of(context).yourProgress,
+                        style: TextStyles.headline(context).copyWith(
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
                   const SizedBox(height: 16),
                   Expanded(
                     child: Consumer2<TaskProvider, TopicProgressProvider>(
-                      builder: (context, taskProvider, progressProvider, child) {
-                        return ListView.builder(
-                          itemCount: syllabi.length,
-                          itemBuilder: (context, index) {
-                            final syllabus = syllabi[index];
-                            final progress = _calculateProgress(
-                              syllabus,
-                              taskProvider,
-                              progressProvider,
-                            );
-                            final color = _getProgressColor(context, progress);
-                            
-                            return _buildProgressCard(
-                              syllabus.title,
-                              progress,
-                              color,
-                              _getProgressMessage(context, progress),
+                      builder:
+                          (context, taskProvider, progressProvider, child) {
+                            return ListView.builder(
+                              itemCount: syllabi.length,
+                              itemBuilder: (context, index) {
+                                final syllabus = syllabi[index];
+                                final progress = _calculateProgress(
+                                  syllabus,
+                                  taskProvider,
+                                  progressProvider,
+                                );
+                                final color = _getProgressColor(
+                                  context,
+                                  progress,
+                                );
+
+                                return _buildProgressCard(
+                                  syllabus.title,
+                                  progress,
+                                  color,
+                                  _getProgressMessage(context, progress),
+                                );
+                              },
                             );
                           },
-                        );
-                      },
                     ),
                   ),
                 ],
@@ -315,7 +321,12 @@ class _ProgressPageState extends State<ProgressPage> {
     );
   }
 
-  Widget _buildProgressCard(String subject, int percentage, Color color, String message) {
+  Widget _buildProgressCard(
+    String subject,
+    int percentage,
+    Color color,
+    String message,
+  ) {
     return AnimatedCard(
       margin: const EdgeInsets.only(bottom: 16),
       onTap: () {
@@ -326,10 +337,7 @@ class _ProgressPageState extends State<ProgressPage> {
         padding: const EdgeInsets.all(20.0),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: color.withValues(alpha: 0.3),
-            width: 1.5,
-          ),
+          border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -340,16 +348,18 @@ class _ProgressPageState extends State<ProgressPage> {
                 Expanded(
                   child: Text(
                     subject,
-                    style: TextStyles.titleMedium(context).copyWith(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
+                    style: TextStyles.titleMedium(
+                      context,
+                    ).copyWith(fontWeight: FontWeight.bold, fontSize: 18),
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
                 const SizedBox(width: 12),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(20),
@@ -379,7 +389,9 @@ class _ProgressPageState extends State<ProgressPage> {
             Text(
               message,
               style: TextStyles.caption(context).copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
                 fontSize: 13,
               ),
             ),

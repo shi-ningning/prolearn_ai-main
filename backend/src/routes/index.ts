@@ -5,6 +5,7 @@ import projectRoutes from './project.routes';
 import taskRoutes from './task.routes';
 import analyticsRoutes from './analytics.routes';
 import adminRoutes from './admin.routes';
+import chatRoutes from './chat.routes';
 
 const router = Router();
 
@@ -24,7 +25,8 @@ router.get('/', (req, res) => {
       projects: '/api/projects',
       tasks: '/api/tasks',
       analytics: '/api/analytics',
-      admin: '/api/admin'
+      admin: '/api/admin',
+      chat: '/api/chat'
     }
   });
 });
@@ -36,5 +38,6 @@ router.use('/projects', projectRoutes);
 router.use('/tasks', taskRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/admin', adminRoutes);
+router.use('/chat', chatRoutes);
 
 export default router;

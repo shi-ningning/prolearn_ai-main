@@ -124,8 +124,9 @@ class _TaskPageState extends State<TaskPage> {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content:
-                            Text(AppText.of(context, listen: false).taskAdded),
+                        content: Text(
+                          AppText.of(context, listen: false).taskAdded,
+                        ),
                         backgroundColor: Colors.green,
                       ),
                     );
@@ -205,7 +206,7 @@ class _TaskPageState extends State<TaskPage> {
                 ),
                 const SizedBox(height: 16),
                 DropdownButtonFormField<TaskPriority>(
-                  value: selectedPriority,
+                  initialValue: selectedPriority,
                   decoration: InputDecoration(
                     labelText: AppText.of(context).priority,
                     border: const OutlineInputBorder(),
@@ -264,8 +265,9 @@ class _TaskPageState extends State<TaskPage> {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content:
-                            Text(AppText.of(context, listen: false).taskUpdated),
+                        content: Text(
+                          AppText.of(context, listen: false).taskUpdated,
+                        ),
                         backgroundColor: Colors.green,
                       ),
                     );
@@ -302,9 +304,7 @@ class _TaskPageState extends State<TaskPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(AppText.of(context).deleteTask),
-        content: Text(
-          AppText.of(context).deleteTaskConfirm(task.title),
-        ),
+        content: Text(AppText.of(context).deleteTaskConfirm(task.title)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -313,7 +313,7 @@ class _TaskPageState extends State<TaskPage> {
           ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-          child: Text(AppText.of(context).deleteTask),
+            child: Text(AppText.of(context).deleteTask),
           ),
         ],
       ),
@@ -323,27 +323,23 @@ class _TaskPageState extends State<TaskPage> {
   }
 
   Future<void> _performDeleteTask(TaskModel task) async {
+    final messenger = ScaffoldMessenger.of(context);
+    final appText = AppText.of(context, listen: false);
     try {
       await context.read<TaskProvider>().deleteTask(task.id);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppText.of(context, listen: false).taskDeleted),
-            backgroundColor: Colors.green,
-          ),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(appText.taskDeleted),
+          backgroundColor: Colors.green,
+        ),
+      );
     } catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              '${AppText.of(context, listen: false).errorPrefix}: $e',
-            ),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text('${appText.errorPrefix}: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
     }
   }
 
@@ -387,7 +383,7 @@ class _TaskPageState extends State<TaskPage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
@@ -422,7 +418,7 @@ class _TaskPageState extends State<TaskPage> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w400,
-                color: colorScheme.onSurface.withOpacity(0.6),
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
                 letterSpacing: 0.2,
               ),
             ),
@@ -443,7 +439,10 @@ class _TaskPageState extends State<TaskPage> {
                   radius: 18,
                   backgroundColor: colorScheme.primary,
                   child: Text(
-                    FirebaseAuth.instance.currentUser?.displayName?.substring(0, 1).toUpperCase() ?? 'U',
+                    FirebaseAuth.instance.currentUser?.displayName
+                            ?.substring(0, 1)
+                            .toUpperCase() ??
+                        'U',
                     style: TextStyle(
                       color: colorScheme.onPrimary,
                       fontWeight: FontWeight.bold,
@@ -456,7 +455,7 @@ class _TaskPageState extends State<TaskPage> {
                   FirebaseAuth.instance.currentUser?.displayName ?? 'User',
                   style: TextStyle(
                     fontSize: 10,
-                    color: colorScheme.onSurface.withOpacity(0.7),
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w500,
                   ),
                   maxLines: 1,
@@ -466,10 +465,7 @@ class _TaskPageState extends State<TaskPage> {
             ),
           ),
         ],
-        iconTheme: IconThemeData(
-          color: colorScheme.onSurface,
-          size: 24,
-        ),
+        iconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),
         backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 70,
@@ -510,13 +506,17 @@ class _TaskPageState extends State<TaskPage> {
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.3),
                           ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide(
-                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.3),
                           ),
                         ),
                         focusedBorder: OutlineInputBorder(
@@ -537,7 +537,7 @@ class _TaskPageState extends State<TaskPage> {
                       children: [
                         Expanded(
                           child: DropdownButtonFormField<TaskFilter>(
-                            value: taskProvider.currentFilter,
+                            initialValue: taskProvider.currentFilter,
                             decoration: InputDecoration(
                               labelText: AppText.of(context).filter,
                               border: OutlineInputBorder(
@@ -576,7 +576,7 @@ class _TaskPageState extends State<TaskPage> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: DropdownButtonFormField<TaskSort>(
-                            value: taskProvider.currentSort,
+                            initialValue: taskProvider.currentSort,
                             decoration: InputDecoration(
                               labelText: AppText.of(context).sort,
                               border: OutlineInputBorder(
@@ -618,9 +618,7 @@ class _TaskPageState extends State<TaskPage> {
                 ),
               ),
               // Tasks List
-              Expanded(
-                child: _buildTasksList(taskProvider),
-              ),
+              Expanded(child: _buildTasksList(taskProvider)),
             ],
           );
         },
@@ -639,10 +637,9 @@ class _TaskPageState extends State<TaskPage> {
             Icon(
               Icons.task_alt,
               size: 80,
-              color: Theme.of(context)
-                  .colorScheme
-                  .onSurface
-                  .withValues(alpha: 0.5),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -650,10 +647,9 @@ class _TaskPageState extends State<TaskPage> {
                   ? AppText.of(context).noTasksFound
                   : AppText.of(context).noTasksYet,
               style: TextStyles.headline(context).copyWith(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.7),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 8),
@@ -662,10 +658,9 @@ class _TaskPageState extends State<TaskPage> {
                   ? AppText.of(context).tryAdjustSearch
                   : AppText.of(context).tapPlusToAdd,
               style: TextStyles.body(context).copyWith(
-                color: Theme.of(context)
-                    .colorScheme
-                    .onSurface
-                    .withValues(alpha: 0.5),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.5),
               ),
             ),
           ],
@@ -674,160 +669,167 @@ class _TaskPageState extends State<TaskPage> {
     }
 
     return RefreshIndicator(
-            onRefresh: _loadTasks,
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16.0),
-              itemCount: tasks.length,
-              itemBuilder: (context, index) {
-                final task = tasks[index];
-                final isOverdue = task.dueDate.isBefore(DateTime.now()) && !task.isCompleted;
-                
-                return Dismissible(
-                  key: ValueKey(task.id),
-                  direction: DismissDirection.endToStart,
-                  confirmDismiss: (_) async {
-                    final confirmed = await _confirmDeleteTask(task);
-                    if (confirmed) {
-                      await _performDeleteTask(task);
-                    }
-                    return confirmed;
-                  },
-                  background: Container(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    alignment: Alignment.centerRight,
-                    decoration: BoxDecoration(
-                      color: Colors.red.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: const Icon(Icons.delete, color: Colors.red),
+      onRefresh: _loadTasks,
+      child: ListView.builder(
+        padding: const EdgeInsets.all(16.0),
+        itemCount: tasks.length,
+        itemBuilder: (context, index) {
+          final task = tasks[index];
+          final isOverdue =
+              task.dueDate.isBefore(DateTime.now()) && !task.isCompleted;
+
+          return Dismissible(
+            key: ValueKey(task.id),
+            direction: DismissDirection.endToStart,
+            confirmDismiss: (_) async {
+              final confirmed = await _confirmDeleteTask(task);
+              if (confirmed) {
+                await _performDeleteTask(task);
+              }
+              return confirmed;
+            },
+            background: Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              alignment: Alignment.centerRight,
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(Icons.delete, color: Colors.red),
+            ),
+            child: AnimatedCard(
+              margin: const EdgeInsets.only(bottom: 12),
+              backgroundColor: isOverdue
+                  ? Colors.red.withValues(alpha: 0.1)
+                  : null,
+              onTap: () {
+                // Show task details or edit
+                _showEditTaskDialog(task);
+              },
+              onLongPress: () async {
+                await taskProvider.toggleTaskCompletion(task);
+              },
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: task.isCompleted
+                      ? AppColors.tertiary.withValues(alpha: 0.2)
+                      : AppColors.primary.withValues(alpha: 0.2),
+                  child: Icon(
+                    task.isCompleted ? Icons.check_circle : Icons.assignment,
+                    color: task.isCompleted
+                        ? AppColors.tertiary
+                        : AppColors.primary,
                   ),
-                  child: AnimatedCard(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    backgroundColor: isOverdue ? Colors.red.withValues(alpha: 0.1) : null,
-                    onTap: () {
-                      // Show task details or edit
-                      _showEditTaskDialog(task);
-                    },
-                    onLongPress: () async {
-                      await taskProvider.toggleTaskCompletion(task);
-                    },
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: task.isCompleted
-                            ? AppColors.tertiary.withValues(alpha: 0.2)
-                            : AppColors.primary.withValues(alpha: 0.2),
-                        child: Icon(
-                          task.isCompleted ? Icons.check_circle : Icons.assignment,
-                          color: task.isCompleted ? AppColors.tertiary : AppColors.primary,
+                ),
+                title: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        task.title,
+                        style: TextStyles.body(context).copyWith(
+                          decoration: task.isCompleted
+                              ? TextDecoration.lineThrough
+                              : null,
+                          color: task.isCompleted
+                              ? Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withValues(alpha: 0.6)
+                              : null,
                         ),
                       ),
-                      title: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              task.title,
-                            style: TextStyles.body(context).copyWith(
-                                decoration: task.isCompleted ? TextDecoration.lineThrough : null,
-                                color: task.isCompleted
-                                  ? Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.6)
-                                    : null,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          _getPriorityIcon(task.priority),
-                        ],
+                    ),
+                    const SizedBox(width: 8),
+                    _getPriorityIcon(task.priority),
+                  ],
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (task.description.isNotEmpty) ...[
+                      Text(
+                        task.description,
+                        style: TextStyles.caption(context),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (task.description.isNotEmpty) ...[
-                            Text(
-                              task.description,
-                            style: TextStyles.caption(context),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                          ],
-                          Text(
-                            _formatDate(task.dueDate),
-                          style: TextStyles.caption(context).copyWith(
-                            color: isOverdue
-                                  ? Colors.red
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withValues(alpha: 0.7),
-                              fontWeight: isOverdue ? FontWeight.bold : FontWeight.normal,
-                            ),
-                          ),
-                        ],
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              task.isCompleted
-                                  ? Icons.check_circle
-                                  : Icons.radio_button_unchecked,
-                            color: task.isCompleted
-                                  ? AppColors.tertiary
-                                  : Theme.of(context).colorScheme.onSurface,
-                            ),
-                            onPressed: () async {
-                              await taskProvider.toggleTaskCompletion(task);
-                            },
-                          tooltip: task.isCompleted
-                                ? AppText.of(context).markIncomplete
-                                : AppText.of(context).markComplete,
-                          ),
-                          PopupMenuButton(
-                            itemBuilder: (context) => [
-                              PopupMenuItem(
-                                value: 'edit',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.edit, size: 20),
-                                    SizedBox(width: 8),
-                                    Text(AppText.of(context).editTask),
-                                  ],
-                                ),
-                              ),
-                              PopupMenuItem(
-                                value: 'delete',
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.delete, size: 20, color: Colors.red),
-                                    SizedBox(width: 8),
-                                    Text(
-                                      AppText.of(context).deleteTask,
-                                      style: TextStyle(color: Colors.red),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                            onSelected: (value) {
-                              if (value == 'edit') {
-                                _showEditTaskDialog(task);
-                              } else if (value == 'delete') {
-                                _deleteTask(task);
-                              }
-                            },
-                          ),
-                        ],
+                      const SizedBox(height: 4),
+                    ],
+                    Text(
+                      _formatDate(task.dueDate),
+                      style: TextStyles.caption(context).copyWith(
+                        color: isOverdue
+                            ? Colors.red
+                            : Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.7),
+                        fontWeight: isOverdue
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                       ),
                     ),
-                  ),
-                );
-              },
+                  ],
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(
+                        task.isCompleted
+                            ? Icons.check_circle
+                            : Icons.radio_button_unchecked,
+                        color: task.isCompleted
+                            ? AppColors.tertiary
+                            : Theme.of(context).colorScheme.onSurface,
+                      ),
+                      onPressed: () async {
+                        await taskProvider.toggleTaskCompletion(task);
+                      },
+                      tooltip: task.isCompleted
+                          ? AppText.of(context).markIncomplete
+                          : AppText.of(context).markComplete,
+                    ),
+                    PopupMenuButton(
+                      itemBuilder: (context) => [
+                        PopupMenuItem(
+                          value: 'edit',
+                          child: Row(
+                            children: [
+                              Icon(Icons.edit, size: 20),
+                              SizedBox(width: 8),
+                              Text(AppText.of(context).editTask),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem(
+                          value: 'delete',
+                          child: Row(
+                            children: [
+                              Icon(Icons.delete, size: 20, color: Colors.red),
+                              SizedBox(width: 8),
+                              Text(
+                                AppText.of(context).deleteTask,
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      onSelected: (value) {
+                        if (value == 'edit') {
+                          _showEditTaskDialog(task);
+                        } else if (value == 'delete') {
+                          _deleteTask(task);
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
             ),
           );
+        },
+      ),
+    );
   }
 }

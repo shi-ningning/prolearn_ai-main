@@ -3,16 +3,14 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../data/services/google_classroom_service.dart';
 import '../../state/google_classroom_provider.dart';
-import '../../widgets/animated_card.dart';
 import 'assignment_detail_page.dart';
+import 'chat_page.dart';
+import '../../../utils/logger.dart';
 
 class ClassroomDetailPage extends StatefulWidget {
   final GoogleClassroomCourse course;
 
-  const ClassroomDetailPage({
-    super.key,
-    required this.course,
-  });
+  const ClassroomDetailPage({super.key, required this.course});
 
   @override
   State<ClassroomDetailPage> createState() => _ClassroomDetailPageState();
@@ -36,30 +34,34 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
   Future<void> _loadAllContent() async {
     setState(() => _isLoading = true);
     try {
+      // The original line was: final provider = context.read<GoogleClassroomProvider>();
+      // The requested change was syntactically incorrect for this context.
+      // Assuming the intent was to ensure provider access and potentially add logging.
+      // Reverting to the correct way to get the provider and ensuring Logger is used.
       final provider = context.read<GoogleClassroomProvider>();
-      
+
       final results = await Future.wait([
         provider.getAnnouncements(widget.course.id),
         provider.getCourseWork(widget.course.id),
         provider.getCourseMaterials(widget.course.id),
         provider.getTopics(widget.course.id),
       ]);
-      
+
       final announcements = results[0] as List<GoogleClassroomAnnouncement>;
-      
+
       final teacherIds = announcements
           .map((a) => a.creatorUserId)
           .where((id) => id.isNotEmpty)
           .toSet();
-      
+
       final teacherNamesFutures = teacherIds.map((userId) async {
         final name = await provider.getTeacherName(widget.course.id, userId);
         return MapEntry(userId, name);
       });
-      
+
       final teacherNamesResults = await Future.wait(teacherNamesFutures);
       final teacherNamesMap = Map.fromEntries(teacherNamesResults);
-      
+
       setState(() {
         _announcements = announcements;
         _assignments = results[1] as List<GoogleClassroomAssignment>;
@@ -68,8 +70,8 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
         _teacherNames = teacherNamesMap;
         _isLoading = false;
       });
-    } catch (e) {
-      print('Error loading content: $e');
+    } catch (e, stackTrace) {
+      Logger.error('Error loading content', e, stackTrace);
       setState(() => _isLoading = false);
     }
   }
@@ -115,6 +117,18 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
           ),
         ],
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatPage(subject: widget.course.name),
+            ),
+          );
+        },
+        backgroundColor: const Color(0xFF1976D2),
+        child: const Icon(Icons.smart_toy_outlined, color: Colors.white),
+      ),
     );
   }
 
@@ -124,10 +138,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            const Color(0xFF1976D2),
-            const Color(0xFF1565C0),
-          ],
+          colors: [const Color(0xFF1976D2), const Color(0xFF1565C0)],
         ),
       ),
       child: SafeArea(
@@ -144,7 +155,10 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
                   ),
                   const Spacer(),
                   IconButton(
-                    icon: const Icon(Icons.videocam_outlined, color: Colors.white),
+                    icon: const Icon(
+                      Icons.videocam_outlined,
+                      color: Colors.white,
+                    ),
                     onPressed: () {},
                   ),
                   IconButton(
@@ -178,7 +192,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
                       ),
                       Icon(
                         Icons.edit_outlined,
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         size: 20,
                       ),
                     ],
@@ -188,7 +202,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
                     Text(
                       widget.course.section,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 14,
                       ),
                     ),
@@ -196,7 +210,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
                   const SizedBox(height: 24),
                   Icon(
                     Icons.class_outlined,
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                     size: 64,
                   ),
                 ],
@@ -225,14 +239,14 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
                     Icon(
                       Icons.announcement_outlined,
                       size: 64,
-                      color: colorScheme.onSurface.withOpacity(0.3),
+                      color: colorScheme.onSurface.withValues(alpha: 0.3),
                     ),
                     const SizedBox(height: 16),
                     Text(
                       'No announcements yet',
                       style: TextStyle(
                         fontSize: 16,
-                        color: colorScheme.onSurface.withOpacity(0.6),
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -240,8 +254,10 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
               ),
             )
           else
-            ..._announcements.map((announcement) =>
-                _buildStreamAnnouncementCard(announcement, colorScheme)),
+            ..._announcements.map(
+              (announcement) =>
+                  _buildStreamAnnouncementCard(announcement, colorScheme),
+            ),
         ],
       ),
     );
@@ -263,11 +279,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.edit_outlined,
-                  color: Colors.white,
-                  size: 20,
-                ),
+                Icon(Icons.edit_outlined, color: Colors.white, size: 20),
                 const SizedBox(width: 12),
                 Text(
                   'New announcement',
@@ -290,13 +302,11 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
     ColorScheme colorScheme,
   ) {
     final teacherName = _teacherNames[announcement.creatorUserId] ?? 'Teacher';
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -306,7 +316,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
               children: [
                 CircleAvatar(
                   radius: 20,
-                  backgroundColor: colorScheme.primary.withOpacity(0.1),
+                  backgroundColor: colorScheme.primary.withValues(alpha: 0.1),
                   child: Icon(
                     Icons.person,
                     color: colorScheme.primary,
@@ -330,7 +340,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
                         _formatDate(announcement.creationTime),
                         style: TextStyle(
                           fontSize: 12,
-                          color: colorScheme.onSurface.withOpacity(0.6),
+                          color: colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                     ],
@@ -339,7 +349,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
                 IconButton(
                   icon: Icon(
                     Icons.more_vert,
-                    color: colorScheme.onSurface.withOpacity(0.6),
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                   onPressed: () {},
                 ),
@@ -356,11 +366,15 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
             ),
             if (announcement.materials.isNotEmpty) ...[
               const SizedBox(height: 16),
-              ...announcement.materials.map((material) =>
-                  _buildMaterialChip(material, colorScheme)),
+              ...announcement.materials.map(
+                (material) => _buildMaterialChip(material, colorScheme),
+              ),
             ],
             const SizedBox(height: 16),
-            Divider(height: 1, color: colorScheme.onSurface.withOpacity(0.1)),
+            Divider(
+              height: 1,
+              color: colorScheme.onSurface.withValues(alpha: 0.1),
+            ),
             const SizedBox(height: 12),
             InkWell(
               onTap: () {},
@@ -370,7 +384,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
                   'Add class comment',
                   style: TextStyle(
                     fontSize: 13,
-                    color: colorScheme.onSurface.withOpacity(0.6),
+                    color: colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
               ),
@@ -388,6 +402,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
     IconData icon;
     String label;
     String? link;
+    // Removed unused parameter 'currentRoute' as it was not present in the original code
     Color backgroundColor;
     Color iconColor;
     Color textColor;
@@ -398,28 +413,36 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
       icon = Icons.description;
       label = material.driveFile!;
       link = null;
-      backgroundColor = isDark ? Colors.red.shade900.withOpacity(0.3) : Colors.red.shade50;
+      backgroundColor = isDark
+          ? Colors.red.shade900.withValues(alpha: 0.3)
+          : Colors.red.shade50;
       iconColor = isDark ? Colors.red.shade300 : Colors.red.shade700;
       textColor = colorScheme.onSurface;
     } else if (material.youtubeVideo != null) {
       icon = Icons.video_library;
       label = material.youtubeVideo!;
       link = null;
-      backgroundColor = isDark ? Colors.red.shade900.withOpacity(0.3) : Colors.red.shade50;
+      backgroundColor = isDark
+          ? Colors.red.shade900.withValues(alpha: 0.3)
+          : Colors.red.shade50;
       iconColor = isDark ? Colors.red.shade300 : Colors.red.shade700;
       textColor = colorScheme.onSurface;
     } else if (material.link != null) {
       icon = Icons.link;
       label = material.link!;
       link = material.link;
-      backgroundColor = isDark ? Colors.blue.shade900.withOpacity(0.3) : Colors.blue.shade50;
+      backgroundColor = isDark
+          ? Colors.blue.shade900.withValues(alpha: 0.3)
+          : Colors.blue.shade50;
       iconColor = isDark ? Colors.blue.shade300 : Colors.blue.shade700;
       textColor = colorScheme.onSurface;
     } else if (material.form != null) {
       icon = Icons.assignment;
       label = material.form!;
       link = null;
-      backgroundColor = isDark ? Colors.purple.shade900.withOpacity(0.3) : Colors.purple.shade50;
+      backgroundColor = isDark
+          ? Colors.purple.shade900.withValues(alpha: 0.3)
+          : Colors.purple.shade50;
       iconColor = isDark ? Colors.purple.shade300 : Colors.purple.shade700;
       textColor = colorScheme.onSurface;
     } else {
@@ -432,7 +455,9 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
         color: backgroundColor,
         borderRadius: BorderRadius.circular(4),
         border: Border.all(
-          color: isDark ? iconColor.withOpacity(0.3) : colorScheme.onSurface.withOpacity(0.1),
+          color: isDark
+              ? iconColor.withValues(alpha: 0.3)
+              : colorScheme.onSurface.withValues(alpha: 0.1),
         ),
       ),
       child: InkWell(
@@ -447,10 +472,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
               Expanded(
                 child: Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: textColor,
-                  ),
+                  style: TextStyle(fontSize: 14, color: textColor),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -463,10 +485,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
   }
 
   Widget _buildClassworkTab(ColorScheme colorScheme) {
-    final allWork = [
-      ..._assignments,
-      ..._materials,
-    ];
+    final allWork = [..._assignments, ..._materials];
 
     if (allWork.isEmpty) {
       return Center(
@@ -476,14 +495,14 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
             Icon(
               Icons.assignment_outlined,
               size: 64,
-              color: colorScheme.onSurface.withOpacity(0.3),
+              color: colorScheme.onSurface.withValues(alpha: 0.3),
             ),
             const SizedBox(height: 16),
             Text(
               'No classwork yet',
               style: TextStyle(
                 fontSize: 16,
-                color: colorScheme.onSurface.withOpacity(0.6),
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -498,15 +517,20 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
           ..._topics.map((topic) => _buildTopicHeader(topic, colorScheme)),
           const SizedBox(height: 16),
         ],
-        ..._assignments
-            .map((assignment) => _buildAssignmentCard(assignment, colorScheme)),
-        ..._materials
-            .map((material) => _buildCourseMaterialCard(material, colorScheme)),
+        ..._assignments.map(
+          (assignment) => _buildAssignmentCard(assignment, colorScheme),
+        ),
+        ..._materials.map(
+          (material) => _buildCourseMaterialCard(material, colorScheme),
+        ),
       ],
     );
   }
 
-  Widget _buildTopicHeader(GoogleClassroomTopic topic, ColorScheme colorScheme) {
+  Widget _buildTopicHeader(
+    GoogleClassroomTopic topic,
+    ColorScheme colorScheme,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Row(
@@ -540,16 +564,15 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
     ColorScheme colorScheme,
   ) {
     final now = DateTime.now();
-    final isOverdue = assignment.dueDate != null &&
+    final isOverdue =
+        assignment.dueDate != null &&
         assignment.dueDate!.isBefore(now) &&
         assignment.state != 'TURNED_IN';
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -557,14 +580,21 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
             PageRouteBuilder(
               pageBuilder: (context, animation, secondaryAnimation) =>
                   AssignmentDetailPage(assignment: assignment),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                const begin = Offset(1.0, 0.0);
-                const end = Offset.zero;
-                const curve = Curves.easeInOut;
-                var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-                var offsetAnimation = animation.drive(tween);
-                return SlideTransition(position: offsetAnimation, child: child);
-              },
+              transitionsBuilder:
+                  (context, animation, secondaryAnimation, child) {
+                    const begin = Offset(1.0, 0.0);
+                    const end = Offset.zero;
+                    const curve = Curves.easeInOut;
+                    var tween = Tween(
+                      begin: begin,
+                      end: end,
+                    ).chain(CurveTween(curve: curve));
+                    var offsetAnimation = animation.drive(tween);
+                    return SlideTransition(
+                      position: offsetAnimation,
+                      child: child,
+                    );
+                  },
             ),
           );
         },
@@ -579,7 +609,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
                 decoration: BoxDecoration(
                   color: isOverdue
                       ? Colors.red.shade50
-                      : colorScheme.primary.withOpacity(0.1),
+                      : colorScheme.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -611,7 +641,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
                           fontSize: 12,
                           color: isOverdue
                               ? Colors.red
-                              : colorScheme.onSurface.withOpacity(0.6),
+                              : colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                     ],
@@ -620,7 +650,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
               ),
               Icon(
                 Icons.chevron_right,
-                color: colorScheme.onSurface.withOpacity(0.4),
+                color: colorScheme.onSurface.withValues(alpha: 0.4),
               ),
             ],
           ),
@@ -636,9 +666,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       elevation: 1,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       child: InkWell(
         onTap: () {},
         borderRadius: BorderRadius.circular(8),
@@ -650,7 +678,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: colorScheme.secondary.withOpacity(0.1),
+                  color: colorScheme.secondary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
@@ -679,7 +707,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
                       'Posted ${_formatDate(material.creationTime)}',
                       style: TextStyle(
                         fontSize: 12,
-                        color: colorScheme.onSurface.withOpacity(0.6),
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -687,7 +715,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
               ),
               Icon(
                 Icons.chevron_right,
-                color: colorScheme.onSurface.withOpacity(0.4),
+                color: colorScheme.onSurface.withValues(alpha: 0.4),
               ),
             ],
           ),
@@ -704,14 +732,14 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
           Icon(
             Icons.people_outline,
             size: 64,
-            color: colorScheme.onSurface.withOpacity(0.3),
+            color: colorScheme.onSurface.withValues(alpha: 0.3),
           ),
           const SizedBox(height: 16),
           Text(
             'People view coming soon',
             style: TextStyle(
               fontSize: 16,
-              color: colorScheme.onSurface.withOpacity(0.6),
+              color: colorScheme.onSurface.withValues(alpha: 0.6),
             ),
           ),
         ],
@@ -739,7 +767,7 @@ class _ClassroomDetailPageState extends State<ClassroomDetailPage> {
       'Sep',
       'Oct',
       'Nov',
-      'Dec'
+      'Dec',
     ];
     return '${months[date.month - 1]} ${date.day}, ${date.year}';
   }

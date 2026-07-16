@@ -5,9 +5,9 @@ import '../../../constants/app_colors.dart';
 import '../../../constants/app_text.dart';
 import '../../../theme/text_styles.dart';
 import '../../widgets/sidebar.dart';
-import '../../widgets/animated_background.dart';
 import '../../widgets/animated_card.dart';
 import '../../state/task_provider.dart';
+import '../../../routes/app_routes.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -32,49 +32,12 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
-  Widget _buildStatCard(String title, String value, Color color, bool isSmallScreen) {
-    return Container(
-      padding: EdgeInsets.all(isSmallScreen ? 12.0 : 16.0),
-      constraints: BoxConstraints(
-        minWidth: isSmallScreen ? 80 : 100,
-        maxWidth: isSmallScreen ? 120 : 150,
-      ),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              value,
-              style: TextStyle(
-                fontSize: isSmallScreen ? 20 : 24,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            ),
-          ),
-          const SizedBox(height: 4),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: isSmallScreen ? 12 : 14,
-                color: const Color.fromARGB(255, 97, 150, 224),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildActivityItem(String title, String time, IconData icon, Color color) {
+  Widget _buildActivityItem(
+    String title,
+    String time,
+    IconData icon,
+    Color color,
+  ) {
     return AnimatedCard(
       margin: const EdgeInsets.only(bottom: 8),
       onTap: () {
@@ -127,7 +90,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget _buildScaffold(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
@@ -162,49 +125,53 @@ class _DashboardPageState extends State<DashboardPage> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w400,
-                color: colorScheme.onSurface.withOpacity(0.6),
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
                 letterSpacing: 0.2,
               ),
             ),
           ],
         ),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                CircleAvatar(
-                  radius: 18,
-                  backgroundColor: colorScheme.primary,
-                  child: Text(
-                    FirebaseAuth.instance.currentUser?.displayName?.substring(0, 1).toUpperCase() ?? 'U',
-                    style: TextStyle(
-                      color: colorScheme.onPrimary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+          InkWell(
+            onTap: () => Navigator.pushNamed(context, AppRoutes.settings),
+            borderRadius: BorderRadius.circular(12),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundColor: colorScheme.primary,
+                    child: Text(
+                      FirebaseAuth.instance.currentUser?.displayName
+                              ?.substring(0, 1)
+                              .toUpperCase() ??
+                          'U',
+                      style: TextStyle(
+                        color: colorScheme.onPrimary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  FirebaseAuth.instance.currentUser?.displayName ?? 'User',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: colorScheme.onSurface.withOpacity(0.7),
-                    fontWeight: FontWeight.w500,
+                  const SizedBox(height: 2),
+                  Text(
+                    FirebaseAuth.instance.currentUser?.displayName ?? 'User',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: colorScheme.onSurface.withValues(alpha: 0.7),
+                      fontWeight: FontWeight.w500,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
-        iconTheme: IconThemeData(
-          color: colorScheme.onSurface,
-          size: 24,
-        ),
+        iconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),
         backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 70,
@@ -259,7 +226,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     },
                   ),
                   SizedBox(height: isSmallScreen ? 24 : 32),
-                  
+
                   /// Recent Activity Header
                   Text(
                     AppText.of(context).recentActivity,
@@ -271,43 +238,47 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   /// Recent Tasks - Stacked vertically
                   Consumer<TaskProvider>(
                     builder: (context, taskProvider, child) {
                       final recentTasks = taskProvider.allTasks
                         ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
                       final displayTasks = recentTasks.take(5).toList();
-                      
+
                       if (displayTasks.isEmpty) {
                         return Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Text(
                             AppText.of(context).noRecentActivity,
                             style: TextStyles.body(context).copyWith(
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withValues(alpha: 0.6),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
                           ),
                         );
                       }
-                      
+
                       return Column(
                         children: displayTasks.map((task) {
                           final timeAgo = _getTimeAgo(task.createdAt);
-                          final icon = task.isCompleted 
-                              ? Icons.check_circle 
+                          final icon = task.isCompleted
+                              ? Icons.check_circle
                               : Icons.assignment;
-                          final color = task.isCompleted 
-                              ? AppColors.tertiary 
+                          final color = task.isCompleted
+                              ? AppColors.tertiary
                               : AppColors.primary;
                           final title = task.isCompleted
                               ? '${AppText.of(context).completedPrefix}: ${task.title}'
                               : '${AppText.of(context).createdPrefix}: ${task.title}';
-                          
-                          return _buildActivityItem(title, timeAgo, icon, color);
+
+                          return _buildActivityItem(
+                            title,
+                            timeAgo,
+                            icon,
+                            color,
+                          );
                         }).toList(),
                       );
                     },

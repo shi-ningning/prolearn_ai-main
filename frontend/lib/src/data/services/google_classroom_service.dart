@@ -1,8 +1,8 @@
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/classroom/v1.dart' as classroom;
 import 'package:extension_google_sign_in_as_googleapis_auth/extension_google_sign_in_as_googleapis_auth.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'google_sign_in_instance.dart';
+import '../../utils/logger.dart';
 
 class GoogleClassroomService {
   late final GoogleSignIn _googleSignIn;
@@ -16,35 +16,41 @@ class GoogleClassroomService {
 
   Future<bool> signIn({bool allowPrompt = true}) async {
     try {
-      print('🔍 GoogleClassroom: Checking current Google user...');
+      Logger.info('GoogleClassroom: Checking current Google user...');
       var account = _googleSignIn.currentUser;
-      print('GoogleClassroom: Current user: ${account?.email ?? "none"}');
-      
+      Logger.info('GoogleClassroom: Current user: ${account?.email ?? "none"}');
+
       if (account == null) {
-        print('🔍 GoogleClassroom: Attempting silent sign-in...');
+        Logger.info('GoogleClassroom: Attempting silent sign-in...');
         try {
           account = await _googleSignIn.signInSilently(suppressErrors: false);
-          print('GoogleClassroom: Silent sign-in result: ${account?.email ?? "failed"}');
+          Logger.info(
+            'GoogleClassroom: Silent sign-in result: ${account?.email ?? "failed"}',
+          );
         } catch (e) {
-          print('⚠️ GoogleClassroom: Silent sign-in error: $e');
+          Logger.warning('GoogleClassroom: Silent sign-in error: $e');
         }
       }
-      
+
       if (account == null && allowPrompt) {
-        print('🔍 GoogleClassroom: Attempting regular sign-in (with prompt)...');
+        Logger.info(
+          'GoogleClassroom: Attempting regular sign-in (with prompt)...',
+        );
         account = await _googleSignIn.signIn();
-        print('GoogleClassroom: Regular sign-in result: ${account?.email ?? "cancelled"}');
+        Logger.info(
+          'GoogleClassroom: Regular sign-in result: ${account?.email ?? "cancelled"}',
+        );
       }
-      
+
       if (account == null) {
-        print('❌ GoogleClassroom: No Google account available');
+        Logger.error('GoogleClassroom: No Google account available');
         return false;
       }
 
-      print('✅ GoogleClassroom: Google account obtained: ${account.email}');
+      Logger.info('GoogleClassroom: Google account obtained: ${account.email}');
       _currentUser = account;
-      
-      print('🔍 GoogleClassroom: Checking if scopes are granted...');
+
+      Logger.info('GoogleClassroom: Checking if scopes are granted...');
       final hasScopes = await _googleSignIn.canAccessScopes([
         classroom.ClassroomApi.classroomCoursesReadonlyScope,
         classroom.ClassroomApi.classroomCourseworkMeReadonlyScope,
@@ -53,11 +59,11 @@ class GoogleClassroomService {
         'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly',
         'https://www.googleapis.com/auth/classroom.topics.readonly',
       ]);
-      
-      print('GoogleClassroom: Has required scopes: $hasScopes');
-      
+
+      Logger.info('GoogleClassroom: Has required scopes: $hasScopes');
+
       if (!hasScopes && allowPrompt) {
-        print('🔍 GoogleClassroom: Requesting additional scopes...');
+        Logger.info('GoogleClassroom: Requesting additional scopes...');
         try {
           await _googleSignIn.requestScopes([
             classroom.ClassroomApi.classroomCoursesReadonlyScope,
@@ -67,45 +73,46 @@ class GoogleClassroomService {
             'https://www.googleapis.com/auth/classroom.courseworkmaterials.readonly',
             'https://www.googleapis.com/auth/classroom.topics.readonly',
           ]);
-          print('✅ GoogleClassroom: Additional scopes granted');
+          Logger.info('GoogleClassroom: Additional scopes granted');
         } catch (e) {
-          print('❌ GoogleClassroom: Failed to request scopes: $e');
+          Logger.error('GoogleClassroom: Failed to request scopes', e);
           return false;
         }
       } else if (!hasScopes) {
-        print('❌ GoogleClassroom: Missing required scopes and prompt not allowed');
+        Logger.error(
+          'GoogleClassroom: Missing required scopes and prompt not allowed',
+        );
         return false;
       }
-      
-      print('🔍 GoogleClassroom: Getting authenticated client...');
+
+      Logger.info('GoogleClassroom: Getting authenticated client...');
       final httpClient = await _googleSignIn.authenticatedClient();
       if (httpClient == null) {
-        print('❌ GoogleClassroom: Failed to get authenticated client');
-        print('GoogleClassroom: Trying to refresh authentication...');
-        
+        Logger.error('GoogleClassroom: Failed to get authenticated client');
+        Logger.info('GoogleClassroom: Trying to refresh authentication...');
+
         try {
           await account.clearAuthCache();
           final refreshedClient = await _googleSignIn.authenticatedClient();
           if (refreshedClient == null) {
-            print('❌ GoogleClassroom: Still failed after cache clear');
+            Logger.error('GoogleClassroom: Still failed after cache clear');
             return false;
           }
-          print('✅ GoogleClassroom: Got client after refresh');
+          Logger.info('GoogleClassroom: Got client after refresh');
           _classroomApi = classroom.ClassroomApi(refreshedClient);
         } catch (e) {
-          print('❌ GoogleClassroom: Error refreshing: $e');
+          Logger.error('GoogleClassroom: Error refreshing', e);
           return false;
         }
       } else {
-        print('✅ GoogleClassroom: Authenticated client obtained');
+        Logger.info('GoogleClassroom: Authenticated client obtained');
         _classroomApi = classroom.ClassroomApi(httpClient);
       }
-      
-      print('✅ GoogleClassroom: Classroom API initialized successfully');
+
+      Logger.info('GoogleClassroom: Classroom API initialized successfully');
       return true;
     } catch (e, stackTrace) {
-      print('❌ GoogleClassroom: Error signing in: $e');
-      print('GoogleClassroom: Stack trace: $stackTrace');
+      Logger.error('GoogleClassroom: Error signing in', e, stackTrace);
       return false;
     }
   }
@@ -125,10 +132,13 @@ class GoogleClassroomService {
     }
 
     try {
-      final teacher = await _classroomApi!.courses.teachers.get(courseId, userId);
+      final teacher = await _classroomApi!.courses.teachers.get(
+        courseId,
+        userId,
+      );
       return teacher.profile?.name?.fullName ?? 'Teacher';
     } catch (e) {
-      print('Error fetching teacher name: $e');
+      Logger.error('Error fetching teacher name: $e');
       return 'Teacher';
     }
   }
@@ -148,37 +158,41 @@ class GoogleClassroomService {
       if (response.courses == null) return [];
 
       final courses = <GoogleClassroomCourse>[];
-      
+
       for (final course in response.courses!) {
         String teacherName = 'Teacher';
-        
+
         try {
-          final teachers = await _classroomApi!.courses.teachers.list(course.id!);
+          final teachers = await _classroomApi!.courses.teachers.list(
+            course.id!,
+          );
           if (teachers.teachers != null && teachers.teachers!.isNotEmpty) {
             final primaryTeacher = teachers.teachers!.first;
             teacherName = primaryTeacher.profile?.name?.fullName ?? 'Teacher';
           }
         } catch (e) {
-          print('Error fetching teacher for course ${course.id}: $e');
+          Logger.error('Error fetching teacher for course ${course.id}: $e');
         }
 
-        courses.add(GoogleClassroomCourse(
-          id: course.id ?? '',
-          name: course.name ?? 'Unnamed Course',
-          section: course.section ?? '',
-          descriptionHeading: course.descriptionHeading ?? '',
-          description: course.description ?? '',
-          room: course.room ?? '',
-          ownerId: course.ownerId ?? '',
-          courseState: course.courseState ?? '',
-          alternateLink: course.alternateLink ?? '',
-          teacherName: teacherName,
-        ));
+        courses.add(
+          GoogleClassroomCourse(
+            id: course.id ?? '',
+            name: course.name ?? 'Unnamed Course',
+            section: course.section ?? '',
+            descriptionHeading: course.descriptionHeading ?? '',
+            description: course.description ?? '',
+            room: course.room ?? '',
+            ownerId: course.ownerId ?? '',
+            courseState: course.courseState ?? '',
+            alternateLink: course.alternateLink ?? '',
+            teacherName: teacherName,
+          ),
+        );
       }
 
       return courses;
     } catch (e) {
-      print('Error fetching courses: $e');
+      Logger.error('Error fetching courses: $e');
       return [];
     }
   }
@@ -213,30 +227,36 @@ class GoogleClassroomService {
                 )
               : null,
           maxPoints: work.maxPoints?.toDouble() ?? 0.0,
-          materials: work.materials?.map((m) {
-            return GoogleClassroomMaterial(
-              driveFile: m.driveFile?.driveFile?.title,
-              youtubeVideo: m.youtubeVideo?.title,
-              link: m.link?.url,
-              form: m.form?.title,
-            );
-          }).toList() ?? [],
+          materials:
+              work.materials?.map((m) {
+                return GoogleClassroomMaterial(
+                  driveFile: m.driveFile?.driveFile?.title,
+                  youtubeVideo: m.youtubeVideo?.title,
+                  link: m.link?.url,
+                  form: m.form?.title,
+                );
+              }).toList() ??
+              [],
         );
       }).toList();
     } catch (e) {
-      print('Error fetching coursework: $e');
+      Logger.error('Error fetching coursework: $e');
       return [];
     }
   }
 
-  Future<List<GoogleClassroomAnnouncement>> getAnnouncements(String courseId) async {
+  Future<List<GoogleClassroomAnnouncement>> getAnnouncements(
+    String courseId,
+  ) async {
     if (_classroomApi == null) {
       final signedIn = await signIn();
       if (!signedIn) return [];
     }
 
     try {
-      final response = await _classroomApi!.courses.announcements.list(courseId);
+      final response = await _classroomApi!.courses.announcements.list(
+        courseId,
+      );
 
       if (response.announcements == null) return [];
 
@@ -253,31 +273,37 @@ class GoogleClassroomService {
           updateTime: announcement.updateTime != null
               ? DateTime.parse(announcement.updateTime!)
               : DateTime.now(),
-          materials: announcement.materials?.map((m) {
-            return GoogleClassroomMaterial(
-              driveFile: m.driveFile?.driveFile?.title,
-              youtubeVideo: m.youtubeVideo?.title,
-              link: m.link?.url,
-              form: m.form?.title,
-            );
-          }).toList() ?? [],
+          materials:
+              announcement.materials?.map((m) {
+                return GoogleClassroomMaterial(
+                  driveFile: m.driveFile?.driveFile?.title,
+                  youtubeVideo: m.youtubeVideo?.title,
+                  link: m.link?.url,
+                  form: m.form?.title,
+                );
+              }).toList() ??
+              [],
           creatorUserId: announcement.creatorUserId ?? '',
         );
       }).toList();
     } catch (e) {
-      print('Error fetching announcements: $e');
+      Logger.error('Error fetching announcements: $e');
       return [];
     }
   }
 
-  Future<List<GoogleClassroomCourseMaterial>> getCourseMaterials(String courseId) async {
+  Future<List<GoogleClassroomCourseMaterial>> getCourseMaterials(
+    String courseId,
+  ) async {
     if (_classroomApi == null) {
       final signedIn = await signIn();
       if (!signedIn) return [];
     }
 
     try {
-      final response = await _classroomApi!.courses.courseWorkMaterials.list(courseId);
+      final response = await _classroomApi!.courses.courseWorkMaterials.list(
+        courseId,
+      );
 
       if (response.courseWorkMaterial == null) return [];
 
@@ -292,18 +318,20 @@ class GoogleClassroomService {
           creationTime: material.creationTime != null
               ? DateTime.parse(material.creationTime!)
               : DateTime.now(),
-          materials: material.materials?.map((m) {
-            return GoogleClassroomMaterial(
-              driveFile: m.driveFile?.driveFile?.title,
-              youtubeVideo: m.youtubeVideo?.title,
-              link: m.link?.url,
-              form: m.form?.title,
-            );
-          }).toList() ?? [],
+          materials:
+              material.materials?.map((m) {
+                return GoogleClassroomMaterial(
+                  driveFile: m.driveFile?.driveFile?.title,
+                  youtubeVideo: m.youtubeVideo?.title,
+                  link: m.link?.url,
+                  form: m.form?.title,
+                );
+              }).toList() ??
+              [],
         );
       }).toList();
     } catch (e) {
-      print('Error fetching course materials: $e');
+      Logger.error('Error fetching course materials: $e');
       return [];
     }
   }
@@ -330,7 +358,7 @@ class GoogleClassroomService {
         );
       }).toList();
     } catch (e) {
-      print('Error fetching topics: $e');
+      Logger.error('Error fetching topics: $e');
       return [];
     }
   }

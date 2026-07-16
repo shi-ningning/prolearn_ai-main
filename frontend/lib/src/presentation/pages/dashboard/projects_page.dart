@@ -37,7 +37,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
     final tagsController = TextEditingController();
     DateTime? selectedDate;
     ProjectPriority selectedPriority = ProjectPriority.medium;
-    String? selectedColor = AppColors.primary.value.toRadixString(16);
+    String? selectedColor = AppColors.primary.toARGB32().toRadixString(16);
 
     await showDialog(
       context: context,
@@ -86,7 +86,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<ProjectPriority>(
-                    value: selectedPriority,
+                    initialValue: selectedPriority,
                     decoration: InputDecoration(
                       labelText: AppText.of(context).priority,
                       border: const OutlineInputBorder(),
@@ -127,7 +127,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
                     onTap: () async {
                       final picked = await showDatePicker(
                         context: context,
-                        initialDate: DateTime.now().add(const Duration(days: 7)),
+                        initialDate: DateTime.now().add(
+                          const Duration(days: 7),
+                        ),
                         firstDate: DateTime.now(),
                         lastDate: DateTime.now().add(const Duration(days: 365)),
                       );
@@ -186,11 +188,17 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   );
 
                   // Capture text before async operation
-                  final projectAddedText = AppText.of(context, listen: false).projectAdded;
+                  final projectAddedText = AppText.of(
+                    context,
+                    listen: false,
+                  ).projectAdded;
 
-                  final success = await context.read<ProjectProvider>().createProject(project);
+                  final success = await context
+                      .read<ProjectProvider>()
+                      .createProject(project);
 
-                  if (success && mounted) {
+                  if (!context.mounted) return;
+                  if (success) {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -211,7 +219,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
 
   Future<void> _showEditProjectDialog(ProjectModel project) async {
     final titleController = TextEditingController(text: project.title);
-    final descriptionController = TextEditingController(text: project.description);
+    final descriptionController = TextEditingController(
+      text: project.description,
+    );
     final tagsController = TextEditingController(text: project.tags.join(', '));
     DateTime? selectedDate = project.dueDate;
     ProjectPriority selectedPriority = project.priority;
@@ -265,7 +275,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<ProjectStatus>(
-                    value: selectedStatus,
+                    initialValue: selectedStatus,
                     decoration: InputDecoration(
                       labelText: AppText.of(context).projectStatus,
                       border: const OutlineInputBorder(),
@@ -298,7 +308,9 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('${AppText.of(context).projectProgress}: $selectedProgress%'),
+                      Text(
+                        '${AppText.of(context).projectProgress}: $selectedProgress%',
+                      ),
                       Slider(
                         value: selectedProgress.toDouble(),
                         min: 0,
@@ -315,7 +327,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<ProjectPriority>(
-                    value: selectedPriority,
+                    initialValue: selectedPriority,
                     decoration: InputDecoration(
                       labelText: AppText.of(context).priority,
                       border: const OutlineInputBorder(),
@@ -401,14 +413,17 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   );
 
                   // Capture text before async operation
-                  final projectUpdatedText = AppText.of(context, listen: false).projectUpdated;
+                  final projectUpdatedText = AppText.of(
+                    context,
+                    listen: false,
+                  ).projectUpdated;
 
-                  final success = await context.read<ProjectProvider>().updateProject(
-                        project.id,
-                        updatedProject,
-                      );
+                  final success = await context
+                      .read<ProjectProvider>()
+                      .updateProject(project.id, updatedProject);
 
-                  if (success && mounted) {
+                  if (!context.mounted) return;
+                  if (success) {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -433,9 +448,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: colorScheme.surface,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Text(
           AppText.of(context).delete,
           style: TextStyle(color: colorScheme.onSurface),
@@ -464,11 +477,16 @@ class _ProjectsPageState extends State<ProjectsPage> {
       ),
     );
 
-    if (confirmed == true) {
+    if (confirmed == true && mounted) {
       // Capture text before async operation
-      final projectDeletedText = AppText.of(context, listen: false).projectDeleted;
-      
-      final success = await context.read<ProjectProvider>().deleteProject(project.id);
+      final projectDeletedText = AppText.of(
+        context,
+        listen: false,
+      ).projectDeleted;
+
+      final success = await context.read<ProjectProvider>().deleteProject(
+        project.id,
+      );
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -557,7 +575,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
               style: TextStyle(
                 fontSize: 13,
                 fontWeight: FontWeight.w400,
-                color: colorScheme.onSurface.withOpacity(0.6),
+                color: colorScheme.onSurface.withValues(alpha: 0.6),
                 letterSpacing: 0.2,
               ),
             ),
@@ -629,7 +647,10 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   radius: 18,
                   backgroundColor: colorScheme.primary,
                   child: Text(
-                    FirebaseAuth.instance.currentUser?.displayName?.substring(0, 1).toUpperCase() ?? 'U',
+                    FirebaseAuth.instance.currentUser?.displayName
+                            ?.substring(0, 1)
+                            .toUpperCase() ??
+                        'U',
                     style: TextStyle(
                       color: colorScheme.onPrimary,
                       fontWeight: FontWeight.bold,
@@ -642,7 +663,7 @@ class _ProjectsPageState extends State<ProjectsPage> {
                   FirebaseAuth.instance.currentUser?.displayName ?? 'User',
                   style: TextStyle(
                     fontSize: 10,
-                    color: colorScheme.onSurface.withOpacity(0.7),
+                    color: colorScheme.onSurface.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w500,
                   ),
                   maxLines: 1,
@@ -652,213 +673,231 @@ class _ProjectsPageState extends State<ProjectsPage> {
             ),
           ),
         ],
-        iconTheme: IconThemeData(
-          color: colorScheme.onSurface,
-          size: 24,
-        ),
+        iconTheme: IconThemeData(color: colorScheme.onSurface, size: 24),
         backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 70,
       ),
       drawer: const Sidebar(),
       body: Consumer<ProjectProvider>(
-            builder: (context, projectProvider, child) {
-              if (projectProvider.isLoading) {
-                return Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+        builder: (context, projectProvider, child) {
+          if (projectProvider.isLoading) {
+            return Center(
+              child: CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(colorScheme.primary),
+              ),
+            );
+          }
+
+          final projects = projectProvider.projects;
+
+          if (projects.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.folder_open,
+                    size: 80,
+                    color: colorScheme.onSurface.withValues(alpha: 0.3),
                   ),
-                );
-              }
-
-              final projects = projectProvider.projects;
-
-              if (projects.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.folder_open,
-                        size: 80,
-                        color: colorScheme.onSurface.withValues(alpha: 0.3),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        AppText.of(context).noProjects,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: colorScheme.onSurface,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        AppText.of(context).noProjectsSubtitle,
-                        style: TextStyle(
-                          color: colorScheme.onSurface.withValues(alpha: 0.7),
-                        ),
-                      ),
-                    ],
+                  const SizedBox(height: 16),
+                  Text(
+                    AppText.of(context).noProjects,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: colorScheme.onSurface,
+                    ),
                   ),
-                );
-              }
+                  const SizedBox(height: 8),
+                  Text(
+                    AppText.of(context).noProjectsSubtitle,
+                    style: TextStyle(
+                      color: colorScheme.onSurface.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }
 
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: projects.length,
-                itemBuilder: (context, index) {
-                  final project = projects[index];
-                  return AnimatedCard(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    useGlassmorphism: false,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      onTap: () => _showEditProjectDialog(project),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+          return ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: projects.length,
+            itemBuilder: (context, index) {
+              final project = projects[index];
+              return AnimatedCard(
+                margin: const EdgeInsets.only(bottom: 16),
+                useGlassmorphism: false,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () => _showEditProjectDialog(project),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
-                            Row(
-                              children: [
-                                Container(
-                                  width: 4,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: _getPriorityColor(project.priority),
-                                    borderRadius: BorderRadius.circular(2),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        project.title,
-                                        style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: colorScheme.onSurface,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        children: [
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 4,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: _getStatusColor(project.status)
-                                                  .withValues(alpha: 0.2),
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                            child: Text(
-                                              _getStatusText(context, project.status),
-                                              style: TextStyle(
-                                                fontSize: 12,
-                                                color: _getStatusColor(project.status),
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.delete, color: colorScheme.error),
-                                  onPressed: () => _deleteProject(project),
-                                ),
-                              ],
-                            ),
-                            if (project.description.isNotEmpty) ...[
-                              const SizedBox(height: 12),
-                              Text(
-                                project.description,
-                                style: TextStyle(
-                                  color: colorScheme.onSurface.withValues(alpha: 0.7),
-                                ),
-                              ),
-                            ],
-                            const SizedBox(height: 12),
-                            LinearProgressIndicator(
-                              value: project.progress / 100,
-                              backgroundColor: colorScheme.primary.withValues(alpha: 0.2),
-                              valueColor: AlwaysStoppedAnimation<Color>(
-                                colorScheme.primary,
+                            Container(
+                              width: 4,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                color: _getPriorityColor(project.priority),
+                                borderRadius: BorderRadius.circular(2),
                               ),
                             ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  '${project.progress}%',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: colorScheme.primary,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    project.title,
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: colorScheme.onSurface,
+                                    ),
                                   ),
-                                ),
-                                if (project.dueDate != null)
+                                  const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      Icon(
-                                        Icons.calendar_today,
-                                        size: 14,
-                                        color: colorScheme.onSurface.withValues(alpha: 0.6),
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        '${project.dueDate!.day}/${project.dueDate!.month}/${project.dueDate!.year}',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color: colorScheme.onSurface.withValues(alpha: 0.6),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: _getStatusColor(
+                                            project.status,
+                                          ).withValues(alpha: 0.2),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          _getStatusText(
+                                            context,
+                                            project.status,
+                                          ),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: _getStatusColor(
+                                              project.status,
+                                            ),
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
                                     ],
                                   ),
-                              ],
-                            ),
-                            if (project.tags.isNotEmpty) ...[
-                              const SizedBox(height: 12),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: project.tags.map((tag) {
-                                  return Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: colorScheme.secondary.withValues(alpha: 0.2),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Text(
-                                      tag,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: colorScheme.secondary,
-                                      ),
-                                    ),
-                                  );
-                                }).toList(),
+                                ],
                               ),
-                            ],
+                            ),
+                            IconButton(
+                              icon: Icon(
+                                Icons.delete,
+                                color: colorScheme.error,
+                              ),
+                              onPressed: () => _deleteProject(project),
+                            ),
                           ],
                         ),
-                      ),
+                        if (project.description.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          Text(
+                            project.description,
+                            style: TextStyle(
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.7,
+                              ),
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: 12),
+                        LinearProgressIndicator(
+                          value: project.progress / 100,
+                          backgroundColor: colorScheme.primary.withValues(
+                            alpha: 0.2,
+                          ),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            colorScheme.primary,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '${project.progress}%',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: colorScheme.primary,
+                              ),
+                            ),
+                            if (project.dueDate != null)
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_today,
+                                    size: 14,
+                                    color: colorScheme.onSurface.withValues(
+                                      alpha: 0.6,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    '${project.dueDate!.day}/${project.dueDate!.month}/${project.dueDate!.year}',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: colorScheme.onSurface.withValues(
+                                        alpha: 0.6,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                          ],
+                        ),
+                        if (project.tags.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: project.tags.map((tag) {
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.secondary.withValues(
+                                    alpha: 0.2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  tag,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: colorScheme.secondary,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ],
+                      ],
                     ),
-                  );
-                },
+                  ),
+                ),
               );
             },
-          ),
+          );
+        },
+      ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddProjectDialog,
         backgroundColor: colorScheme.primary,

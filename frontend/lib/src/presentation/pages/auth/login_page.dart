@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final size = MediaQuery.of(context).size;
-    
+
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: SafeArea(
@@ -72,25 +72,26 @@ class _LoginPageState extends State<LoginPage> {
                     // Welcome Text
                     Text(
                       'Welcome Back',
-                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.onSurface,
-                        fontSize: 32,
-                      ),
+                      style: Theme.of(context).textTheme.headlineLarge
+                          ?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                            fontSize: 32,
+                          ),
                     ),
-                    
+
                     const SizedBox(height: 8),
-                    
+
                     Text(
                       'Sign in to continue',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: colorScheme.onSurface.withOpacity(0.6),
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
                         fontSize: 16,
                       ),
                     ),
-                    
+
                     const SizedBox(height: 40),
-                    
+
                     // Email Field
                     _buildTextField(
                       controller: _emailController,
@@ -101,9 +102,9 @@ class _LoginPageState extends State<LoginPage> {
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.emailAddress,
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Password Field
                     _buildTextField(
                       controller: _passwordController,
@@ -118,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                           _obscurePassword
                               ? Icons.visibility_outlined
                               : Icons.visibility_off_outlined,
-                          color: colorScheme.onSurface.withOpacity(0.5),
+                          color: colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                         onPressed: () {
                           setState(() {
@@ -127,9 +128,9 @@ class _LoginPageState extends State<LoginPage> {
                         },
                       ),
                     ),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // Login Button
                     FilledButton(
                       onPressed: _isLoading ? null : _login,
@@ -161,15 +162,15 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Divider with OR text
                     Row(
                       children: [
                         Expanded(
                           child: Divider(
-                            color: colorScheme.onSurface.withOpacity(0.2),
+                            color: colorScheme.onSurface.withValues(alpha: 0.2),
                             thickness: 1,
                           ),
                         ),
@@ -178,7 +179,9 @@ class _LoginPageState extends State<LoginPage> {
                           child: Text(
                             'OR',
                             style: TextStyle(
-                              color: colorScheme.onSurface.withOpacity(0.5),
+                              color: colorScheme.onSurface.withValues(
+                                alpha: 0.5,
+                              ),
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
                             ),
@@ -186,15 +189,15 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         Expanded(
                           child: Divider(
-                            color: colorScheme.onSurface.withOpacity(0.2),
+                            color: colorScheme.onSurface.withValues(alpha: 0.2),
                             thickness: 1,
                           ),
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Google Sign-In Button
                     OutlinedButton.icon(
                       onPressed: _isLoading ? null : _signInWithGoogle,
@@ -214,7 +217,7 @@ class _LoginPageState extends State<LoginPage> {
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         side: BorderSide(
-                          color: colorScheme.outline.withOpacity(0.3),
+                          color: colorScheme.outline.withValues(alpha: 0.3),
                           width: 1.5,
                         ),
                         shape: RoundedRectangleBorder(
@@ -223,9 +226,9 @@ class _LoginPageState extends State<LoginPage> {
                         backgroundColor: colorScheme.surface,
                       ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Register Link
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -233,12 +236,13 @@ class _LoginPageState extends State<LoginPage> {
                         Text(
                           "Don't have an account?",
                           style: TextStyle(
-                            color: colorScheme.onSurface.withOpacity(0.6),
+                            color: colorScheme.onSurface.withValues(alpha: 0.6),
                             fontSize: 14,
                           ),
                         ),
                         TextButton(
-                          onPressed: () => Navigator.pushNamed(context, '/register'),
+                          onPressed: () =>
+                              Navigator.pushNamed(context, '/register'),
                           child: Text(
                             'Sign Up',
                             style: TextStyle(
@@ -250,7 +254,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -274,7 +278,7 @@ class _LoginPageState extends State<LoginPage> {
     Widget? suffixIcon,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -283,7 +287,7 @@ class _LoginPageState extends State<LoginPage> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: colorScheme.onSurface.withOpacity(0.8),
+            color: colorScheme.onSurface.withValues(alpha: 0.8),
           ),
         ),
         const SizedBox(height: 8),
@@ -293,24 +297,23 @@ class _LoginPageState extends State<LoginPage> {
           obscureText: obscureText,
           textInputAction: textInputAction,
           keyboardType: keyboardType,
-          style: TextStyle(
-            fontSize: 16,
-            color: colorScheme.onSurface,
-          ),
+          style: TextStyle(fontSize: 16, color: colorScheme.onSurface),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
-              color: colorScheme.onSurface.withOpacity(0.4),
+              color: colorScheme.onSurface.withValues(alpha: 0.4),
               fontSize: 15,
             ),
             prefixIcon: Icon(
               icon,
-              color: colorScheme.onSurface.withOpacity(0.5),
+              color: colorScheme.onSurface.withValues(alpha: 0.5),
               size: 22,
             ),
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+            fillColor: colorScheme.surfaceContainerHighest.withValues(
+              alpha: 0.3,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -318,23 +321,17 @@ class _LoginPageState extends State<LoginPage> {
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: colorScheme.outline.withOpacity(0.1),
+                color: colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: colorScheme.primary,
-                width: 2,
-              ),
+              borderSide: BorderSide(color: colorScheme.primary, width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: colorScheme.error,
-                width: 1,
-              ),
+              borderSide: BorderSide(color: colorScheme.error, width: 1),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -366,30 +363,31 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      await Provider.of<AppAuthProvider>(context, listen: false)
-          .login(email, password);
+      await Provider.of<AppAuthProvider>(
+        context,
+        listen: false,
+      ).login(email, password);
 
       await _saveLastEmail(email);
 
       if (!mounted) return;
-      
+
       setState(() {
         _isLoading = false;
       });
-      
+
       _showSnackBar('Login successful! Redirecting...', isError: false);
-      
+
       await Future.delayed(const Duration(milliseconds: 800));
       if (!mounted) return;
-      
+
       Navigator.pushReplacementNamed(context, '/dashboard');
-      
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
-      
+
       String errorMessage = 'Login failed';
       if (e.code == 'user-not-found') {
         errorMessage = 'No account found with this email';
@@ -400,9 +398,8 @@ class _LoginPageState extends State<LoginPage> {
       } else if (e.message != null) {
         errorMessage = e.message!;
       }
-      
+
       _showSnackBar(errorMessage, isError: true);
-      
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -420,28 +417,29 @@ class _LoginPageState extends State<LoginPage> {
     });
 
     try {
-      await Provider.of<AppAuthProvider>(context, listen: false)
-          .signInWithGoogle();
+      await Provider.of<AppAuthProvider>(
+        context,
+        listen: false,
+      ).signInWithGoogle();
 
       if (!mounted) return;
-      
+
       setState(() {
         _isLoading = false;
       });
-      
+
       _showSnackBar('Signed in with Google successfully!', isError: false);
-      
+
       await Future.delayed(const Duration(milliseconds: 800));
       if (!mounted) return;
-      
+
       Navigator.pushReplacementNamed(context, '/dashboard');
-      
     } catch (e) {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
-      
+
       String errorMessage = 'Google Sign-In failed';
       if (e.toString().contains('popup_closed')) {
         errorMessage = 'Sign-in was cancelled. Please try again.';
@@ -452,7 +450,7 @@ class _LoginPageState extends State<LoginPage> {
       } else {
         errorMessage = 'An error occurred: ${e.toString()}';
       }
-      
+
       _showSnackBar(errorMessage, isError: true);
     }
   }
@@ -465,9 +463,7 @@ class _LoginPageState extends State<LoginPage> {
             ? Theme.of(context).colorScheme.error
             : Theme.of(context).colorScheme.primary,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         duration: Duration(seconds: isError ? 4 : 2),
       ),
     );

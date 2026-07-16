@@ -4,19 +4,17 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import '../../data/services/firebase_service.dart';
 import '../../data/services/google_auth_service.dart';
 import '../../utils/logger.dart';
 import 'google_classroom_provider.dart';
 
 class AppAuthProvider extends ChangeNotifier {
-  final FirebaseService _firebaseService = FirebaseService();
   final GoogleAuthService _googleAuthService = GoogleAuthService();
   GoogleClassroomProvider? _classroomProvider;
-  
+
   // Backend API URL - Update this with your production URL
-  static const String _apiBaseUrl = 'http://localhost:3000/api';
-  
+  static const String _apiBaseUrl = 'http://localhost:8080/api';
+
   FirebaseAuth get _auth {
     // Ensure Firebase is initialized before accessing Auth
     if (Firebase.apps.isEmpty) {
@@ -53,7 +51,9 @@ class AppAuthProvider extends ChangeNotifier {
         Logger.info('MongoDB response: ${data['message']}');
         return true;
       } else {
-        Logger.warning('MongoDB save failed: ${response.statusCode} - ${response.body}');
+        Logger.warning(
+          'MongoDB save failed: ${response.statusCode} - ${response.body}',
+        );
         return false;
       }
     } catch (e) {
@@ -165,7 +165,9 @@ class AppAuthProvider extends ChangeNotifier {
     }
 
     // Additional validation for email format
-    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
     if (!emailRegex.hasMatch(trimmedEmail)) {
       throw FirebaseAuthException(
         code: 'invalid-email',
@@ -192,7 +194,7 @@ class AppAuthProvider extends ChangeNotifier {
         final user = credential.user!;
         await user.updateDisplayName(trimmedName);
         await user.reload();
-        
+
         // DEVELOPMENT MODE: Email verification disabled
         // Uncomment the code below to re-enable email verification
         /*
@@ -216,13 +218,15 @@ class AppAuthProvider extends ChangeNotifier {
           // They can request verification again from the email verification page
         }
         */
-        Logger.info('✅ User registered successfully (email verification skipped for development)');
+        Logger.info(
+          '✅ User registered successfully (email verification skipped for development)',
+        );
 
         // Save user to MongoDB via backend API (instead of Firestore)
         try {
           // Get Firebase ID token for authentication
           final idToken = await user.getIdToken();
-          
+
           // Call backend API to save user to MongoDB
           final response = await _saveUserToMongoDB(
             user.uid,
@@ -230,11 +234,13 @@ class AppAuthProvider extends ChangeNotifier {
             trimmedName,
             idToken,
           );
-          
+
           if (response) {
             Logger.info('✅ User saved to MongoDB successfully');
           } else {
-            Logger.warning('⚠️  Failed to save user to MongoDB, but Firebase Auth succeeded');
+            Logger.warning(
+              '⚠️  Failed to save user to MongoDB, but Firebase Auth succeeded',
+            );
           }
         } catch (e) {
           Logger.warning('⚠️  Error saving to MongoDB: $e');
@@ -280,7 +286,7 @@ class AppAuthProvider extends ChangeNotifier {
   Future<void> signInWithGoogle() async {
     try {
       final userCredential = await _googleAuthService.signInWithGoogle();
-      
+
       if (userCredential == null) {
         throw Exception('Google Sign-In was cancelled');
       }
@@ -289,14 +295,14 @@ class AppAuthProvider extends ChangeNotifier {
       if (user != null) {
         try {
           final idToken = await user.getIdToken();
-          
+
           final response = await _saveUserToMongoDB(
             user.uid,
             user.email ?? '',
             user.displayName ?? 'User',
             idToken,
           );
-          
+
           if (response) {
             Logger.info('✅ User saved to MongoDB successfully');
           } else {
@@ -305,18 +311,20 @@ class AppAuthProvider extends ChangeNotifier {
         } catch (e) {
           Logger.warning('⚠️  Error saving to MongoDB: $e');
         }
-        
+
         if (_classroomProvider != null) {
           try {
             Logger.info('🔄 Waiting for authentication to propagate...');
             await Future.delayed(const Duration(seconds: 1));
-            
+
             Logger.info('🔄 Automatically signing in to Google Classroom...');
             await _classroomProvider!.signIn();
             if (_classroomProvider!.isSignedIn) {
               Logger.info('✅ Google Classroom sign-in successful');
             } else {
-              Logger.warning('⚠️  Google Classroom sign-in failed: ${_classroomProvider!.error}');
+              Logger.warning(
+                '⚠️  Google Classroom sign-in failed: ${_classroomProvider!.error}',
+              );
             }
           } catch (e) {
             Logger.warning('⚠️  Google Classroom sign-in failed: $e');

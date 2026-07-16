@@ -20,9 +20,21 @@ class AppTheme {
       onError: AppColors.onError,
     ),
     textTheme: const TextTheme(
-      headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.onBackground),
-      headlineMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: AppColors.onBackground),
-      headlineSmall: TextStyle(fontSize: 24, fontWeight: FontWeight.w500, color: AppColors.onBackground),
+      headlineLarge: TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        color: AppColors.onBackground,
+      ),
+      headlineMedium: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.w600,
+        color: AppColors.onBackground,
+      ),
+      headlineSmall: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w500,
+        color: AppColors.onBackground,
+      ),
       bodyLarge: TextStyle(fontSize: 16, color: AppColors.onBackground),
       bodyMedium: TextStyle(fontSize: 14, color: AppColors.onBackground),
       bodySmall: TextStyle(fontSize: 12, color: AppColors.onSurface),
@@ -39,9 +51,9 @@ class AppTheme {
     ),
     textButtonTheme: TextButtonThemeData(
       style: ButtonStyle(
-        foregroundColor: MaterialStateProperty.all(AppColors.primary),
-        overlayColor: MaterialStateProperty.resolveWith<Color?>(
-          (states) => states.contains(MaterialState.hovered)
+        foregroundColor: WidgetStateProperty.all(AppColors.primary),
+        overlayColor: WidgetStateProperty.resolveWith<Color?>(
+          (states) => states.contains(WidgetState.hovered)
               ? AppColors.primary.withValues(alpha: 0.08)
               : null,
         ),
@@ -49,21 +61,21 @@ class AppTheme {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: ButtonStyle(
-        foregroundColor: MaterialStateProperty.all(AppColors.primary),
-        overlayColor: MaterialStateProperty.resolveWith<Color?>(
-          (states) => states.contains(MaterialState.hovered)
+        foregroundColor: WidgetStateProperty.all(AppColors.primary),
+        overlayColor: WidgetStateProperty.resolveWith<Color?>(
+          (states) => states.contains(WidgetState.hovered)
               ? AppColors.primary.withValues(alpha: 0.08)
               : null,
         ),
-        side: MaterialStateProperty.all(
+        side: WidgetStateProperty.all(
           BorderSide(color: AppColors.primary.withValues(alpha: 0.4)),
         ),
       ),
     ),
     iconButtonTheme: IconButtonThemeData(
       style: ButtonStyle(
-        overlayColor: MaterialStateProperty.resolveWith<Color?>(
-          (states) => states.contains(MaterialState.hovered)
+        overlayColor: WidgetStateProperty.resolveWith<Color?>(
+          (states) => states.contains(WidgetState.hovered)
               ? AppColors.primary.withValues(alpha: 0.08)
               : null,
         ),
@@ -127,9 +139,21 @@ class AppTheme {
       onError: AppColors.onError,
     ),
     textTheme: const TextTheme(
-      headlineLarge: TextStyle(fontSize: 32, fontWeight: FontWeight.bold, color: AppColors.darkOnBackground),
-      headlineMedium: TextStyle(fontSize: 28, fontWeight: FontWeight.w600, color: AppColors.darkOnBackground),
-      headlineSmall: TextStyle(fontSize: 24, fontWeight: FontWeight.w500, color: AppColors.darkOnBackground),
+      headlineLarge: TextStyle(
+        fontSize: 32,
+        fontWeight: FontWeight.bold,
+        color: AppColors.darkOnBackground,
+      ),
+      headlineMedium: TextStyle(
+        fontSize: 28,
+        fontWeight: FontWeight.w600,
+        color: AppColors.darkOnBackground,
+      ),
+      headlineSmall: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w500,
+        color: AppColors.darkOnBackground,
+      ),
       bodyLarge: TextStyle(fontSize: 16, color: AppColors.darkOnBackground),
       bodyMedium: TextStyle(fontSize: 14, color: AppColors.darkOnBackground),
       bodySmall: TextStyle(fontSize: 12, color: AppColors.darkOnSurface),
@@ -146,9 +170,9 @@ class AppTheme {
     ),
     textButtonTheme: TextButtonThemeData(
       style: ButtonStyle(
-        foregroundColor: MaterialStateProperty.all(AppColors.darkPrimary),
-        overlayColor: MaterialStateProperty.resolveWith<Color?>(
-          (states) => states.contains(MaterialState.hovered)
+        foregroundColor: WidgetStateProperty.all(AppColors.darkPrimary),
+        overlayColor: WidgetStateProperty.resolveWith<Color?>(
+          (states) => states.contains(WidgetState.hovered)
               ? AppColors.darkPrimary.withValues(alpha: 0.12)
               : null,
         ),
@@ -156,21 +180,21 @@ class AppTheme {
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: ButtonStyle(
-        foregroundColor: MaterialStateProperty.all(AppColors.darkPrimary),
-        overlayColor: MaterialStateProperty.resolveWith<Color?>(
-          (states) => states.contains(MaterialState.hovered)
+        foregroundColor: WidgetStateProperty.all(AppColors.darkPrimary),
+        overlayColor: WidgetStateProperty.resolveWith<Color?>(
+          (states) => states.contains(WidgetState.hovered)
               ? AppColors.darkPrimary.withValues(alpha: 0.12)
               : null,
         ),
-        side: MaterialStateProperty.all(
+        side: WidgetStateProperty.all(
           BorderSide(color: AppColors.darkPrimary.withValues(alpha: 0.5)),
         ),
       ),
     ),
     iconButtonTheme: IconButtonThemeData(
       style: ButtonStyle(
-        overlayColor: MaterialStateProperty.resolveWith<Color?>(
-          (states) => states.contains(MaterialState.hovered)
+        overlayColor: WidgetStateProperty.resolveWith<Color?>(
+          (states) => states.contains(WidgetState.hovered)
               ? AppColors.darkPrimary.withValues(alpha: 0.12)
               : null,
         ),

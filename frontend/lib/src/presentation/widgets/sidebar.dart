@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../constants/app_text.dart';
 import '../../routes/app_routes.dart';
-import '../../data/models/syllabus_model.dart';
+
 import '../state/syllabus_provider.dart';
 import '../state/app_auth_provider.dart';
 import '../state/google_classroom_provider.dart';
-import '../../data/services/google_classroom_service.dart';
 import '../pages/dashboard/classroom_detail_page.dart';
+import '../pages/dashboard/chat_page.dart';
 
 class Sidebar extends StatelessWidget {
   const Sidebar({super.key});
@@ -15,8 +15,7 @@ class Sidebar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final isSmallScreen = constraints.maxWidth < 600;
@@ -36,9 +35,9 @@ class Sidebar extends StatelessWidget {
                         Text(
                           'ProLearn',
                           style: TextStyle(
-                            color: colorScheme.primary,
-                            fontSize: isSmallScreen ? 24 : 28,
                             fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                            color: colorScheme.primary,
                             letterSpacing: -0.5,
                           ),
                         ),
@@ -46,36 +45,29 @@ class Sidebar extends StatelessWidget {
                         Text(
                           'AI',
                           style: TextStyle(
-                            color: colorScheme.secondary,
-                            fontSize: isSmallScreen ? 24 : 28,
                             fontWeight: FontWeight.bold,
+                            fontSize: 22,
+                            color: colorScheme.secondary,
                             letterSpacing: 0.5,
                           ),
                         ),
                       ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'AI-Powered Learning Platform',
-                      style: TextStyle(
-                        color: colorScheme.onSurface.withValues(alpha: 0.6),
-                        fontSize: isSmallScreen ? 11 : 13,
-                        fontWeight: FontWeight.w400,
-                        letterSpacing: 0.2,
-                      ),
                     ),
                   ],
                 ),
               ),
               Expanded(
                 child: ListView(
-                  padding: EdgeInsets.symmetric(vertical: isSmallScreen ? 8 : 12),
+                  padding: EdgeInsets.symmetric(
+                    vertical: isSmallScreen ? 8 : 12,
+                  ),
                   children: [
                     _buildSidebarItem(
                       context,
                       icon: Icons.dashboard,
                       title: AppText.of(context).dashboard,
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.dashboard),
+                      onTap: () =>
+                          Navigator.pushNamed(context, AppRoutes.dashboard),
                       isSmallScreen: isSmallScreen,
                     ),
                     // Learning - Expandable Dropdown
@@ -89,28 +81,44 @@ class Sidebar extends StatelessWidget {
                       context,
                       icon: Icons.task,
                       title: AppText.of(context).tasks,
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.tasks),
+                      onTap: () =>
+                          Navigator.pushNamed(context, AppRoutes.tasks),
                       isSmallScreen: isSmallScreen,
                     ),
                     _buildSidebarItem(
                       context,
                       icon: Icons.folder_outlined,
                       title: AppText.of(context).projects,
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.projects),
+                      onTap: () =>
+                          Navigator.pushNamed(context, AppRoutes.projects),
                       isSmallScreen: isSmallScreen,
                     ),
                     _buildSidebarItem(
                       context,
                       icon: Icons.bar_chart,
                       title: AppText.of(context).progress,
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.progress),
+                      onTap: () =>
+                          Navigator.pushNamed(context, AppRoutes.progress),
+                      isSmallScreen: isSmallScreen,
+                    ),
+                    _buildSidebarItem(
+                      context,
+                      icon: Icons.smart_toy_outlined,
+                      title: 'AI Assistant',
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ChatPage(),
+                        ),
+                      ),
                       isSmallScreen: isSmallScreen,
                     ),
                     _buildSidebarItem(
                       context,
                       icon: Icons.settings,
                       title: AppText.of(context).settings,
-                      onTap: () => Navigator.pushNamed(context, AppRoutes.settings),
+                      onTap: () =>
+                          Navigator.pushNamed(context, AppRoutes.settings),
                       isSmallScreen: isSmallScreen,
                     ),
                   ],
@@ -132,21 +140,19 @@ class Sidebar extends StatelessWidget {
     required bool isSmallScreen,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Consumer2<SyllabusProvider, GoogleClassroomProvider>(
-      builder: (context, syllabusProvider, classroomProvider, child) {
+      builder: (context, syllabusProvider, classroomProvider, _) {
         final syllabi = syllabusProvider.syllabi;
         final classrooms = classroomProvider.courses;
-        
+
         return Container(
           margin: EdgeInsets.symmetric(
             horizontal: isSmallScreen ? 12 : 16,
             vertical: 4,
           ),
           child: Theme(
-            data: Theme.of(context).copyWith(
-              dividerColor: Colors.transparent,
-            ),
+            data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
             child: ExpansionTile(
               leading: Icon(
                 icon,
@@ -171,94 +177,99 @@ class Sidebar extends StatelessWidget {
                 left: isSmallScreen ? 32 : 40,
                 bottom: 8,
               ),
-            children: [
-              // "All Courses" option
-              ListTile(
-                leading: Icon(
-                  Icons.grid_view_rounded,
-                  color: colorScheme.primary,
-                  size: 20,
-                ),
-                title: Text(
-                  'All Courses',
-                  style: TextStyle(
-                    color: colorScheme.onSurface,
-                    fontSize: 14,
-                  ),
-                ),
-                onTap: () => Navigator.pushNamed(context, AppRoutes.learning),
-                contentPadding: EdgeInsets.zero,
-              ),
-              // Google Classroom courses
-              ...classrooms.map((classroom) {
-                return ListTile(
+              children: [
+                // "All Courses" option
+                ListTile(
                   leading: Icon(
-                    Icons.school,
+                    Icons.grid_view_rounded,
                     color: colorScheme.primary,
                     size: 20,
                   ),
                   title: Text(
-                    classroom.name,
+                    'All Courses',
                     style: TextStyle(
                       color: colorScheme.onSurface,
                       fontSize: 14,
                     ),
                   ),
-                  subtitle: Text(
-                    classroom.section.isNotEmpty ? classroom.section : classroom.teacherName,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onSurface.withValues(alpha: 0.6),
+                  onTap: () => Navigator.pushNamed(context, AppRoutes.learning),
+                  contentPadding: EdgeInsets.zero,
+                ),
+                // Google Classroom courses
+                ...classrooms.map((classroom) {
+                  return ListTile(
+                    leading: Icon(
+                      Icons.school,
+                      color: colorScheme.primary,
+                      size: 20,
                     ),
-                  ),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ClassroomDetailPage(course: classroom),
+                    title: Text(
+                      classroom.name,
+                      style: TextStyle(
+                        color: colorScheme.onSurface,
+                        fontSize: 14,
                       ),
-                    );
-                  },
-                  contentPadding: EdgeInsets.zero,
-                );
-              }).toList(),
-              // Individual syllabi
-              ...syllabi.map((syllabus) {
-                return ListTile(
-                  leading: Text(
-                    syllabus.title.isNotEmpty ? syllabus.title[0].toUpperCase() : 'S',
-                    style: TextStyle(
-                      color: colorScheme.secondary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
                     ),
-                  ),
-                  title: Text(
-                    syllabus.title,
-                    style: TextStyle(
-                      color: colorScheme.onSurface,
-                      fontSize: 14,
+                    subtitle: Text(
+                      classroom.section.isNotEmpty
+                          ? classroom.section
+                          : classroom.teacherName,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
                     ),
-                  ),
-                  subtitle: Text(
-                    '${syllabus.topics.length} topics',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: colorScheme.onSurface.withValues(alpha: 0.6),
+                    onTap: () {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              ClassroomDetailPage(course: classroom),
+                        ),
+                      );
+                    },
+                    contentPadding: EdgeInsets.zero,
+                  );
+                }),
+                // Individual syllabi
+                ...syllabi.map((syllabus) {
+                  return ListTile(
+                    leading: Text(
+                      syllabus.title.isNotEmpty
+                          ? syllabus.title[0].toUpperCase()
+                          : 'S',
+                      style: TextStyle(
+                        color: colorScheme.secondary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
-                  ),
-                  onTap: () {
-                    Navigator.pushNamed(
-                      context,
-                      AppRoutes.learning,
-                      arguments: syllabus,
-                    );
-                  },
-                  contentPadding: EdgeInsets.zero,
-                );
-              }).toList(),
-            ],
+                    title: Text(
+                      syllabus.title,
+                      style: TextStyle(
+                        color: colorScheme.onSurface,
+                        fontSize: 14,
+                      ),
+                    ),
+                    subtitle: Text(
+                      '${syllabus.topics.length} topics',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.pushNamed(
+                        context,
+                        AppRoutes.learning,
+                        arguments: syllabus,
+                      );
+                    },
+                    contentPadding: EdgeInsets.zero,
+                  );
+                }),
+              ],
             ),
           ),
         );
@@ -272,28 +283,31 @@ class Sidebar extends StatelessWidget {
     required String title,
     required VoidCallback onTap,
     required bool isSmallScreen,
-    String? currentRoute,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
     final currentRouteName = ModalRoute.of(context)?.settings.name ?? '';
     final isActive = currentRouteName.contains(title.toLowerCase());
-    
+
     return Container(
       margin: EdgeInsets.symmetric(
         horizontal: isSmallScreen ? 12 : 16,
         vertical: 4,
       ),
-      decoration: isActive ? BoxDecoration(
-        color: colorScheme.primary.withValues(alpha: 0.1),
-        border: Border.all(
-          color: colorScheme.primary.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ) : null,
+      decoration: isActive
+          ? BoxDecoration(
+              color: colorScheme.primary.withValues(alpha: 0.1),
+              border: Border.all(
+                color: colorScheme.primary.withValues(alpha: 0.3),
+                width: 1,
+              ),
+            )
+          : null,
       child: ListTile(
         leading: Icon(
           icon,
-          color: isActive ? colorScheme.primary : colorScheme.onSurface.withValues(alpha: 0.6),
+          color: isActive
+              ? colorScheme.primary
+              : colorScheme.onSurface.withValues(alpha: 0.6),
           size: isSmallScreen ? 22 : 24,
         ),
         title: Text(
@@ -313,60 +327,9 @@ class Sidebar extends StatelessWidget {
     );
   }
 
-  Widget _buildSyllabusItem(
-    BuildContext context, {
-    required SyllabusModel syllabus,
-    required bool isSmallScreen,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    
-    return Container(
-      margin: EdgeInsets.symmetric(
-        horizontal: isSmallScreen ? 16 : 20,
-        vertical: 4,
-      ),
-      child: ListTile(
-        leading: Text(
-          syllabus.title.isNotEmpty ? syllabus.title[0].toUpperCase() : 'S',
-          style: TextStyle(
-            color: colorScheme.secondary,
-            fontWeight: FontWeight.bold,
-            fontSize: isSmallScreen ? 18 : 20,
-          ),
-        ),
-        title: Text(
-          syllabus.title,
-          style: TextStyle(
-            color: colorScheme.onSurface,
-            fontSize: isSmallScreen ? 13 : 14,
-            fontWeight: FontWeight.w500,
-          ),
-        ),
-        subtitle: Text(
-          '${syllabus.topics.length} topics',
-          style: TextStyle(
-            fontSize: 12,
-            color: colorScheme.onSurface.withValues(alpha: 0.6),
-          ),
-        ),
-        onTap: () {
-          Navigator.pushNamed(
-            context,
-            AppRoutes.learning,
-            arguments: syllabus,
-          );
-        },
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: isSmallScreen ? 12 : 16,
-          vertical: 4,
-        ),
-      ),
-    );
-  }
-
   Widget _buildLogoutButton(BuildContext context, bool isSmallScreen) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Container(
       margin: EdgeInsets.symmetric(
         horizontal: isSmallScreen ? 12 : 16,
@@ -397,7 +360,7 @@ class Sidebar extends StatelessWidget {
 
   void _showLogoutConfirmationDialog(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     showDialog(
       context: context,
       builder: (BuildContext dialogContext) {

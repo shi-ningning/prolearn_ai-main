@@ -8,7 +8,7 @@ import '../../utils/logger.dart';
 class TopicProgressProvider with ChangeNotifier {
   final TopicProgressRepository _repository = TopicProgressRepository();
   List<TopicProgressModel> _allProgress = [];
-  Map<String, List<TopicProgressModel>> _progressBySyllabus = {};
+  final Map<String, List<TopicProgressModel>> _progressBySyllabus = {};
   bool _isLoading = false;
 
   List<TopicProgressModel> get allProgress => _allProgress;
@@ -24,10 +24,12 @@ class TopicProgressProvider with ChangeNotifier {
 
   /// Check if a topic is completed
   bool isTopicCompleted(String syllabusId, String topicName) {
-    return _allProgress.any((p) =>
-        p.syllabusId == syllabusId &&
-        p.topicName == topicName &&
-        p.isCompleted);
+    return _allProgress.any(
+      (p) =>
+          p.syllabusId == syllabusId &&
+          p.topicName == topicName &&
+          p.isCompleted,
+    );
   }
 
   /// Get progress percentage for a syllabus
@@ -48,20 +50,22 @@ class TopicProgressProvider with ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    _repository.getAllTopicProgressStream(user.uid).listen(
-      (progressList) {
-        _allProgress = progressList;
-        _updateProgressBySyllabus();
-        _isLoading = false;
-        notifyListeners();
-        Logger.info('Updated topic progress: ${progressList.length} items');
-      },
-      onError: (error) {
-        Logger.error('Error in progress stream', error);
-        _isLoading = false;
-        notifyListeners();
-      },
-    );
+    _repository
+        .getAllTopicProgressStream(user.uid)
+        .listen(
+          (progressList) {
+            _allProgress = progressList;
+            _updateProgressBySyllabus();
+            _isLoading = false;
+            notifyListeners();
+            Logger.info('Updated topic progress: ${progressList.length} items');
+          },
+          onError: (error) {
+            Logger.error('Error in progress stream', error);
+            _isLoading = false;
+            notifyListeners();
+          },
+        );
   }
 
   void _updateProgressBySyllabus() {

@@ -38,7 +38,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final size = MediaQuery.of(context).size;
-    
+
     return Scaffold(
       backgroundColor: colorScheme.surface,
       body: SafeArea(
@@ -59,74 +59,80 @@ class _RegisterPageState extends State<RegisterPage> {
                     // Welcome Text
                     Text(
                       'Create Account',
-                      style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: colorScheme.onSurface,
-                        fontSize: 32,
-                      ),
+                      style: Theme.of(context).textTheme.headlineLarge
+                          ?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: colorScheme.onSurface,
+                            fontSize: 32,
+                          ),
                     ),
-                    
+
                     const SizedBox(height: 8),
-                    
+
                     Text(
                       'Sign up to get started',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: colorScheme.onSurface.withOpacity(0.6),
+                        color: colorScheme.onSurface.withValues(alpha: 0.6),
                         fontSize: 16,
                       ),
                     ),
-                    
+
                     const SizedBox(height: 40),
-                    
+
                     // Name Field
                     _buildTextField(
                       controller: _nameController,
                       label: 'Full Name',
                       hint: 'Enter your full name',
                       icon: Icons.person_outline_rounded,
-                      validator: (v) => v == null || v.isEmpty ? 'Name is required' : null,
+                      validator: (v) =>
+                          v == null || v.isEmpty ? 'Name is required' : null,
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.name,
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Student ID Field
                     _buildTextField(
                       controller: _studentIdController,
                       label: 'Student ID',
                       hint: 'Enter your student ID',
                       icon: Icons.badge_outlined,
-                      validator: (v) => v == null || v.isEmpty ? 'Student ID is required' : null,
+                      validator: (v) => v == null || v.isEmpty
+                          ? 'Student ID is required'
+                          : null,
                       textInputAction: TextInputAction.next,
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Section Field
                     _buildTextField(
                       controller: _sectionController,
                       label: 'Section',
                       hint: 'Enter your section',
                       icon: Icons.group_outlined,
-                      validator: (v) => v == null || v.isEmpty ? 'Section is required' : null,
+                      validator: (v) =>
+                          v == null || v.isEmpty ? 'Section is required' : null,
                       textInputAction: TextInputAction.next,
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Course Field
                     _buildTextField(
                       controller: _courseController,
                       label: 'Course',
                       hint: 'Enter your course',
                       icon: Icons.school_outlined,
-                      validator: (v) => v == null || v.isEmpty ? 'Course is required' : null,
+                      validator: (v) =>
+                          v == null || v.isEmpty ? 'Course is required' : null,
                       textInputAction: TextInputAction.next,
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Email Field
                     _buildTextField(
                       controller: _emailController,
@@ -137,9 +143,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       textInputAction: TextInputAction.next,
                       keyboardType: TextInputType.emailAddress,
                     ),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Password Field
                     _buildTextField(
                       controller: _passwordController,
@@ -154,7 +160,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           _obscurePassword
                               ? Icons.visibility_outlined
                               : Icons.visibility_off_outlined,
-                          color: colorScheme.onSurface.withOpacity(0.5),
+                          color: colorScheme.onSurface.withValues(alpha: 0.5),
                         ),
                         onPressed: () {
                           setState(() {
@@ -163,9 +169,9 @@ class _RegisterPageState extends State<RegisterPage> {
                         },
                       ),
                     ),
-                    
+
                     const SizedBox(height: 32),
-                    
+
                     // Register Button
                     FilledButton(
                       onPressed: _isLoading ? null : _register,
@@ -197,9 +203,9 @@ class _RegisterPageState extends State<RegisterPage> {
                               ),
                             ),
                     ),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Login Link
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -207,12 +213,13 @@ class _RegisterPageState extends State<RegisterPage> {
                         Text(
                           'Already have an account?',
                           style: TextStyle(
-                            color: colorScheme.onSurface.withOpacity(0.6),
+                            color: colorScheme.onSurface.withValues(alpha: 0.6),
                             fontSize: 14,
                           ),
                         ),
                         TextButton(
-                          onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+                          onPressed: () =>
+                              Navigator.pushReplacementNamed(context, '/login'),
                           child: Text(
                             'Sign In',
                             style: TextStyle(
@@ -224,7 +231,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                       ],
                     ),
-                    
+
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -248,7 +255,7 @@ class _RegisterPageState extends State<RegisterPage> {
     Widget? suffixIcon,
   }) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -257,7 +264,7 @@ class _RegisterPageState extends State<RegisterPage> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
-            color: colorScheme.onSurface.withOpacity(0.8),
+            color: colorScheme.onSurface.withValues(alpha: 0.8),
           ),
         ),
         const SizedBox(height: 8),
@@ -267,24 +274,23 @@ class _RegisterPageState extends State<RegisterPage> {
           obscureText: obscureText,
           textInputAction: textInputAction,
           keyboardType: keyboardType,
-          style: TextStyle(
-            fontSize: 16,
-            color: colorScheme.onSurface,
-          ),
+          style: TextStyle(fontSize: 16, color: colorScheme.onSurface),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: TextStyle(
-              color: colorScheme.onSurface.withOpacity(0.4),
+              color: colorScheme.onSurface.withValues(alpha: 0.4),
               fontSize: 15,
             ),
             prefixIcon: Icon(
               icon,
-              color: colorScheme.onSurface.withOpacity(0.5),
+              color: colorScheme.onSurface.withValues(alpha: 0.5),
               size: 22,
             ),
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.3),
+            fillColor: colorScheme.surfaceContainerHighest.withValues(
+              alpha: 0.3,
+            ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
@@ -292,23 +298,17 @@ class _RegisterPageState extends State<RegisterPage> {
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: colorScheme.outline.withOpacity(0.1),
+                color: colorScheme.outline.withValues(alpha: 0.1),
                 width: 1,
               ),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: colorScheme.primary,
-                width: 2,
-              ),
+              borderSide: BorderSide(color: colorScheme.primary, width: 2),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide(
-                color: colorScheme.error,
-                width: 1,
-              ),
+              borderSide: BorderSide(color: colorScheme.error, width: 1),
             ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
@@ -338,14 +338,20 @@ class _RegisterPageState extends State<RegisterPage> {
     final password = _passwordController.text;
 
     // Additional validation
-    if (name.isEmpty || studentId.isEmpty || section.isEmpty || 
-        course.isEmpty || email.isEmpty || password.isEmpty) {
+    if (name.isEmpty ||
+        studentId.isEmpty ||
+        section.isEmpty ||
+        course.isEmpty ||
+        email.isEmpty ||
+        password.isEmpty) {
       _showSnackBar('Please fill in all fields', isError: true);
       return;
     }
 
     // Validate email format
-    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
     if (!emailRegex.hasMatch(email)) {
       _showSnackBar('Please enter a valid email address', isError: true);
       return;
@@ -378,20 +384,22 @@ class _RegisterPageState extends State<RegisterPage> {
       });
 
       // Show success message
-      _showSnackBar('Account created successfully! Redirecting...', isError: false);
-      
+      _showSnackBar(
+        'Account created successfully! Redirecting...',
+        isError: false,
+      );
+
       // Navigate to dashboard
       await Future.delayed(const Duration(milliseconds: 1500));
       if (!mounted) return;
-      
+
       Navigator.pushReplacementNamed(context, '/dashboard');
-      
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       setState(() {
         _isLoading = false;
       });
-      
+
       String errorMessage = 'Registration failed';
       if (e.code == 'email-already-in-use') {
         errorMessage = 'This email is already registered';
@@ -402,9 +410,8 @@ class _RegisterPageState extends State<RegisterPage> {
       } else if (e.message != null) {
         errorMessage = e.message!;
       }
-      
+
       _showSnackBar(errorMessage, isError: true);
-      
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -422,9 +429,7 @@ class _RegisterPageState extends State<RegisterPage> {
             ? Theme.of(context).colorScheme.error
             : Theme.of(context).colorScheme.primary,
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         duration: Duration(seconds: isError ? 4 : 2),
       ),
     );
